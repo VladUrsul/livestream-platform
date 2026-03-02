@@ -1,42 +1,44 @@
 import { lazy, Suspense } from 'react';
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import ProtectedRoute from '../components/common/ProtectedRoute';
+import Layout from '../components/common/Layout';
 
 const Dashboard = lazy(() => import('../pages/Dashboard'));
 
-const LoadingFallback = () => (
+const Loader = () => (
   <div style={{
-    display:        'flex',
-    alignItems:     'center',
-    justifyContent: 'center',
-    height:         '100vh',
-    background:     '#0a0a0a',
-    color:          '#6b7280',
-    fontFamily:     'IBM Plex Mono, monospace',
-    fontSize:       '14px',
-    letterSpacing:  '0.1em',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    height: '100vh', background: '#0a0a0a', color: '#6b7280',
+    fontFamily: 'IBM Plex Mono, monospace', fontSize: '14px',
   }}>
-    Loading...
+    ◈ &nbsp; loading
   </div>
 );
 
 export const router = createBrowserRouter([
+  // Public routes
   { path: '/login',    element: <Login /> },
   { path: '/register', element: <Register /> },
+
+  // Protected routes — all share the Layout (navbar + sidebar)
   {
     element: <ProtectedRoute />,
     children: [
       {
-        path: '/dashboard',
-        element: (
-          <Suspense fallback={<LoadingFallback />}>
-            <Dashboard />
-          </Suspense>
-        ),
+        element: <Layout />,
+        children: [
+          {
+            path: '/dashboard',
+            element: <Suspense fallback={<Loader />}><Dashboard /></Suspense>,
+          },
+          // { path: '/live',    element: <LivePage /> },
+          // { path: '/browse',  element: <BrowsePage /> },
+        ],
       },
     ],
   },
-  { path: '/', element: <Login /> },
+
+  { path: '/', element: <Navigate to="/login" replace /> },
 ]);

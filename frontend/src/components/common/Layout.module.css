@@ -1,0 +1,18 @@
+.root {
+  min-height: 100vh;
+  background: #0a0a0a;
+  font-family: 'Syne', sans-serif;
+}
+
+.main {
+  padding-top: 56px; /* navbar height */
+  min-height: 100vh;
+  transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mainShifted { margin-left: 260px; }
+.mainFull    { margin-left: 0; }
+
+@media (max-width: 768px) {
+  .mainShifted { margin-left: 0; }
+}
