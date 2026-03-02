@@ -27,6 +27,7 @@ func (h *AuthHandler) RegisterRoutes(rg *gin.RouterGroup) {
 	rg.POST("/refresh", h.Refresh)
 	rg.POST("/logout", h.Logout)
 	rg.GET("/validate", h.ValidateToken)
+	rg.GET("/me", h.Me)
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
@@ -100,6 +101,22 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 }
 
 func (h *AuthHandler) ValidateToken(c *gin.Context) {
+	accessToken := extractBearerToken(c)
+	if accessToken == "" {
+		c.JSON(http.StatusUnauthorized, ErrorResponse{Error: "missing token"})
+		return
+	}
+
+	claims, err := h.authService.ValidateToken(c.Request.Context(), accessToken)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, ErrorResponse{Error: "invalid token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, claims)
+}
+
+func (h *AuthHandler) Me(c *gin.Context) {
 	accessToken := extractBearerToken(c)
 	if accessToken == "" {
 		c.JSON(http.StatusUnauthorized, ErrorResponse{Error: "missing token"})

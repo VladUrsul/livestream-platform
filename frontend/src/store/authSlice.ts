@@ -1,4 +1,5 @@
-import { createSlice, 
+import { 
+  createSlice, 
   createAsyncThunk, 
   type PayloadAction 
 } from '@reduxjs/toolkit';
@@ -13,6 +14,25 @@ const STORAGE_KEYS = {
   ACCESS_TOKEN:  'ls_access_token',
   REFRESH_TOKEN: 'ls_refresh_token',
 };
+
+const clearStorage = () => {
+  localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+  localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+};
+
+// ── Async Thunks ──────────────────────────────────────────────────────────────
+
+// Called once on app load to validate the stored token and get fresh user data
+export const getMe = createAsyncThunk(
+  'auth/getMe',
+  async (_, { rejectWithValue }) => {
+    try {
+      return await authService.getMe();
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.error || 'Session expired');
+    }
+  }
+);
 
 export const register = createAsyncThunk(
   'auth/register',
@@ -44,14 +64,18 @@ export const logoutAsync = createAsyncThunk('auth/logout', async () => {
   }
 });
 
+// ── Initial State ─────────────────────────────────────────────────────────────
+
 const initialState: AuthState = {
-  user:            null,
+  user:            null,       // always null on load — getMe fills this in
   accessToken:     localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN),
   refreshToken:    localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN),
-  isAuthenticated: !!localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN),
-  isLoading:       false,
+  isAuthenticated: false,      // false until server confirms the token is valid
+  isLoading:       true,       // true so the app shows a loading screen on first paint
   error:           null,
 };
+
+// ── Slice ─────────────────────────────────────────────────────────────────────
 
 const authSlice = createSlice({
   name: 'auth',
@@ -69,16 +93,37 @@ const authSlice = createSlice({
       state.refreshToken    = null;
       state.isAuthenticated = false;
       state.error           = null;
-      localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-      localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+      clearStorage();
     },
     clearError(state) {
       state.error = null;
     },
   },
   extraReducers: (builder) => {
+
+    // getMe — validates token on app load
     builder
-      .addCase(register.pending,   (state) => { state.isLoading = true;  state.error = null; })
+      .addCase(getMe.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getMe.fulfilled, (state, action) => {
+        state.isLoading       = false;
+        state.isAuthenticated = true;
+        state.user            = action.payload;  // fresh user data from server
+      })
+      .addCase(getMe.rejected, (state) => {
+        // Token was invalid or expired — clear everything
+        state.isLoading       = false;
+        state.isAuthenticated = false;
+        state.user            = null;
+        state.accessToken     = null;
+        state.refreshToken    = null;
+        clearStorage();
+      });
+
+    // Register
+    builder
+      .addCase(register.pending,   (state) => { state.isLoading = true; state.error = null; })
       .addCase(register.fulfilled, (state, action) => {
         state.isLoading       = false;
         state.isAuthenticated = true;
@@ -88,10 +133,14 @@ const authSlice = createSlice({
         localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN,  action.payload.access_token);
         localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, action.payload.refresh_token);
       })
-      .addCase(register.rejected,  (state, action) => { state.isLoading = false; state.error = action.payload as string; });
+      .addCase(register.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error     = action.payload as string;
+      });
 
+    // Login
     builder
-      .addCase(login.pending,   (state) => { state.isLoading = true;  state.error = null; })
+      .addCase(login.pending,   (state) => { state.isLoading = true; state.error = null; })
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading       = false;
         state.isAuthenticated = true;
@@ -101,15 +150,18 @@ const authSlice = createSlice({
         localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN,  action.payload.access_token);
         localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, action.payload.refresh_token);
       })
-      .addCase(login.rejected,  (state, action) => { state.isLoading = false; state.error = action.payload as string; });
+      .addCase(login.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error     = action.payload as string;
+      });
 
+    // Logout
     builder.addCase(logoutAsync.fulfilled, (state) => {
       state.user            = null;
       state.accessToken     = null;
       state.refreshToken    = null;
       state.isAuthenticated = false;
-      localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-      localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+      clearStorage();
     });
   },
 });
