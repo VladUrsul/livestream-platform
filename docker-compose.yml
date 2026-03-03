@@ -19,6 +19,23 @@ services:
       timeout: 5s
       retries: 5
 
+  stream-db:
+    image: postgres:16-alpine
+    container_name: stream-db
+    environment:
+      POSTGRES_DB:       stream_db
+      POSTGRES_USER:     stream_user
+      POSTGRES_PASSWORD: stream_pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - stream-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stream_user -d stream_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   redis:
     image: redis:7-alpine
     container_name: redis
@@ -56,6 +73,7 @@ services:
     environment:
       SERVER_PORT: "8080"
       AUTH_SERVICE_URL: http://auth-service:8081
+      STREAM_SERVICE_URL: http://stream-service:8083
       CORS_ORIGIN: http://localhost:3000
     depends_on:
       - auth-service
@@ -89,6 +107,38 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
+  
+  stream-service:
+    build:
+      context: ./services/stream-service
+      dockerfile: Dockerfile
+    container_name: stream-service
+    ports:
+      - "8083:8083"
+      - "1935:1935"
+    environment:
+      SERVER_PORT:       "8083"
+      DB_HOST:           stream-db
+      DB_PORT:           "5432"
+      DB_USER:           stream_user
+      DB_PASSWORD:       stream_pass
+      DB_NAME:           stream_db
+      DB_SSLMODE:        disable
+      REDIS_HOST:        redis
+      REDIS_PORT:        "6379"
+      REDIS_PASSWORD:    redis_pass
+      RTMP_PORT:         "1935"
+      RTMP_BASE_URL:     rtmp://localhost:1935/live
+      HLS_OUTPUT_DIR:    /tmp/hls
+      HLS_BASE_URL:      http://localhost:8083/hls
+      RABBITMQ_URL:      amqp://rabbit_user:rabbit_pass@rabbitmq:5672/
+      JWT_ACCESS_SECRET: change-this-in-production
+    depends_on:
+      stream-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
   frontend:
     build:
@@ -104,3 +154,4 @@ services:
 
 volumes:
   auth-db-data:
+  stream-db-data:

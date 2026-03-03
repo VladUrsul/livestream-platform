@@ -6,6 +6,8 @@ import ProtectedRoute from '../components/common/ProtectedRoute';
 import Layout from '../components/common/Layout';
 
 const Dashboard = lazy(() => import('../pages/Dashboard'));
+const GoLive      = lazy(() => import('../pages/GoLive'));
+const StreamPage  = lazy(() => import('../pages/StreamPage'));
 
 const Loader = () => (
   <div style={{
@@ -15,6 +17,10 @@ const Loader = () => (
   }}>
     ◈ &nbsp; loading
   </div>
+);
+
+const S = (C: React.ComponentType) => (
+  <Suspense fallback={<Loader />}><C /></Suspense>
 );
 
 export const router = createBrowserRouter([
@@ -33,8 +39,12 @@ export const router = createBrowserRouter([
             path: '/dashboard',
             element: <Suspense fallback={<Loader />}><Dashboard /></Suspense>,
           },
-          // { path: '/live',    element: <LivePage /> },
-          // { path: '/browse',  element: <BrowsePage /> },
+          { path: '/go-live',          
+            element: S(GoLive) 
+          },
+          { path: '/stream/:username', 
+            element: S(StreamPage) 
+          },
         ],
       },
     ],

@@ -27,6 +27,11 @@ func New(cfg *config.Config) (*gin.Engine, error) {
 		return nil, err
 	}
 
+	streamProxy, err := proxy.NewServiceProxy(cfg.Services.StreamServiceURL)
+	if err != nil {
+		return nil, err
+	}
+
 	// ── Route groups ──────────────────────────────────────────────────────
 	// Each group maps to one microservice.
 
@@ -34,6 +39,7 @@ func New(cfg *config.Config) (*gin.Engine, error) {
 
 	// Auth routes — no authentication required, forwarded directly
 	api.Any("/auth/*path", authProxy.Forward())
+	api.Any("/streams/*path", streamProxy.Forward())
 
 	// userProxy, _ := proxy.NewServiceProxy(cfg.Services.UserServiceURL)
 	// api.Any("/users/*path", userProxy.Forward())
