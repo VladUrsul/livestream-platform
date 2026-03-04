@@ -53,14 +53,24 @@ func (t *Transcoder) Start(username string) (io.WriteCloser, error) {
 
 	// ffmpeg reads FLV from stdin and writes HLS segments
 	args := []string{
-		"-f", "flv", // input format is FLV (what RTMP carries)
-		"-i", "pipe:0", // read from stdin
-		"-c:v", "copy", // pass video through without re-encoding
-		"-c:a", "aac", // encode audio to AAC
+		"-f", "flv",
+		"-i", "pipe:0",
+		// Re-encode video to H.264 Baseline — required for MSE/HLS.js compatibility
+		// "copy" passes through High profile which some browsers can't buffer
+		"-c:v", "libx264",
+		"-profile:v", "baseline",
+		"-level", "3.1",
+		"-preset", "veryfast", // low CPU overhead
+		"-tune", "zerolatency",
+		"-c:a", "aac",
+		"-ar", "44100",
+		"-b:a", "128k",
 		"-f", "hls",
 		"-hls_time", fmt.Sprintf("%d", t.segmentTime),
 		"-hls_list_size", fmt.Sprintf("%d", t.listSize),
-		"-hls_flags", "delete_segments+append_list",
+		"-hls_flags", "delete_segments+append_list+independent_segments",
+		"-hls_segment_type", "mpegts",
+		"-start_number", "0",
 		"-hls_segment_filename", segmentPattern,
 		playlistPath,
 	}

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -109,7 +110,18 @@ func main() {
 		}
 		c.Next()
 	})
-	r.Static("/hls", cfg.HLS.OutputDir)
+	r.GET("/hls/*filepath", func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Range")
+		c.Header("Access-Control-Expose-Headers", "Content-Length, Content-Range")
+		c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
+
+		filePath := filepath.Join(cfg.HLS.OutputDir, c.Param("filepath"))
+		c.File(filePath)
+	})
 
 	api := r.Group("/api/v1/streams")
 
