@@ -12,6 +12,7 @@ type Config struct {
 	Database DatabaseConfig
 	Redis    RedisConfig
 	JWT      JWTConfig
+	RabbitMQ RabbitMQConfig
 }
 
 type ServerConfig struct {
@@ -62,6 +63,11 @@ func (j JWTConfig) RefreshExpiry() time.Duration {
 	return time.Duration(j.RefreshExpiryDays) * 24 * time.Hour
 }
 
+type RabbitMQConfig struct {
+	URL          string
+	AuthExchange string
+}
+
 func Load() (*Config, error) {
 	redisDB, err := strconv.Atoi(getEnv("REDIS_DB", "0"))
 	if err != nil {
@@ -75,7 +81,6 @@ func Load() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("invalid JWT_REFRESH_EXPIRY_DAYS: %w", err)
 	}
-
 	return &Config{
 		Server: ServerConfig{
 			Port:         getEnv("SERVER_PORT", "8081"),
@@ -101,6 +106,10 @@ func Load() (*Config, error) {
 			RefreshSecret:     mustEnv("JWT_REFRESH_SECRET"),
 			AccessExpiryMins:  accessExpiry,
 			RefreshExpiryDays: refreshExpiry,
+		},
+		RabbitMQ: RabbitMQConfig{
+			URL:          getEnv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/"),
+			AuthExchange: getEnv("AUTH_EXCHANGE", "auth.events"),
 		},
 	}, nil
 }

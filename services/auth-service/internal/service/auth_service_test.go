@@ -99,7 +99,7 @@ func (m *mockAuthCache) DeleteRefreshToken(ctx context.Context, userID string) e
 
 func newTestService(repo *mockUserRepo, c *mockAuthCache) AuthService {
 	p := token.NewProvider("access-secret", "refresh-secret", 15*time.Minute, 7*24*time.Hour)
-	return NewAuthService(repo, p, c)
+	return NewAuthService(repo, p, c, nil)
 }
 
 // ---- Tests ----

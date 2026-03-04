@@ -8,6 +8,7 @@ import Layout from '../components/common/Layout';
 const Dashboard = lazy(() => import('../pages/Dashboard'));
 const GoLive      = lazy(() => import('../pages/GoLive'));
 const StreamPage  = lazy(() => import('../pages/StreamPage'));
+const ChannelPage = lazy(() => import('../pages/ChannelPage'));
 
 const Loader = () => (
   <div style={{
@@ -45,6 +46,8 @@ export const router = createBrowserRouter([
           { path: '/stream/:username', 
             element: S(StreamPage) 
           },
+          { path: '/channel/:username',  
+            element: S(ChannelPage) },
         ],
       },
     ],

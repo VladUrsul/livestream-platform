@@ -13,11 +13,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
 
 	"github.com/VladUrsul/livestream-platform/services/auth-service/internal/cache"
 	"github.com/VladUrsul/livestream-platform/services/auth-service/internal/config"
 	"github.com/VladUrsul/livestream-platform/services/auth-service/internal/handler"
+	"github.com/VladUrsul/livestream-platform/services/auth-service/internal/publisher"
 	"github.com/VladUrsul/livestream-platform/services/auth-service/internal/repository"
 	"github.com/VladUrsul/livestream-platform/services/auth-service/internal/service"
 	"github.com/VladUrsul/livestream-platform/services/auth-service/internal/token"
@@ -57,6 +59,30 @@ func main() {
 	defer redisClient.Close()
 	log.Println("✓ connected to redis")
 
+	// ── RabbitMQ ───────────────────────────────────────────────────────────────
+	var pub *publisher.Publisher
+	var rabbitConn *amqp.Connection
+	for i := 0; i < 10; i++ {
+		rabbitConn, err = amqp.Dial(cfg.RabbitMQ.URL)
+		if err == nil {
+			break
+		}
+		log.Printf("⚠ rabbitmq not ready, retrying in 3s... (%d/10)", i+1)
+		time.Sleep(3 * time.Second)
+	}
+	if err != nil {
+		log.Printf("⚠ rabbitmq unavailable after retries: %v — running without events", err)
+	} else {
+		defer rabbitConn.Close()
+		pub, err = publisher.New(rabbitConn, cfg.RabbitMQ.AuthExchange)
+		if err != nil {
+			log.Printf("⚠ publisher init: %v", err)
+		} else {
+			defer pub.Close()
+			log.Println("✓ rabbitmq connected")
+		}
+	}
+
 	// ── Dependency Wiring ─────────────────────────────────────────────────────
 	tokenProvider := token.NewProvider(
 		cfg.JWT.AccessSecret,
@@ -66,7 +92,7 @@ func main() {
 	)
 	userRepo := repository.NewPostgresUserRepository(dbPool)
 	authCache := cache.NewRedisAuthCache(redisClient)
-	authSvc := service.NewAuthService(userRepo, tokenProvider, authCache)
+	authSvc := service.NewAuthService(userRepo, tokenProvider, authCache, pub)
 	authHandler := handler.NewAuthHandler(authSvc)
 
 	// ── HTTP Server ───────────────────────────────────────────────────────────

@@ -2,9 +2,7 @@
 
 .navbar {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0; left: 0; right: 0;
   height: 56px;
   background: rgba(10, 10, 10, 0.95);
   backdrop-filter: blur(12px);
@@ -26,14 +24,10 @@
 }
 
 .menuBtn {
-  width: 36px;
-  height: 36px;
-  background: transparent;
-  border: none;
+  width: 36px; height: 36px;
+  background: transparent; border: none;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   border-radius: 6px;
   transition: background 0.15s;
   flex-shrink: 0;
@@ -41,40 +35,32 @@
 .menuBtn:hover { background: #111; }
 
 .menuIcon {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 18px;
+  display: flex; flex-direction: column; gap: 4px; width: 18px;
 }
 .menuIcon span {
-  display: block;
-  height: 1.5px;
-  background: #6b7280;
-  border-radius: 2px;
-  transition: all 0.2s ease;
-  transform-origin: center;
+  display: block; height: 1.5px;
+  background: #6b7280; border-radius: 2px;
+  transition: all 0.2s ease; transform-origin: center;
 }
-.menuIconOpen span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); background: #e8ff47; }
+.menuIconOpen span:nth-child(1) { transform: translateY(5.5px) rotate(45deg);  background: #e8ff47; }
 .menuIconOpen span:nth-child(2) { opacity: 0; transform: scaleX(0); }
 .menuIconOpen span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); background: #e8ff47; }
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-}
+.logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
 .logoSymbol { font-size: 20px; color: #e8ff47; }
-.logoText   {
+.logoText {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.25em;
-  color: #fff;
+  font-size: 13px; font-weight: 500;
+  letter-spacing: 0.25em; color: #fff;
 }
 
 /* ── Center ────────────────────────────────────────────────────── */
-.center { flex: 1; max-width: 480px; margin: 0 24px; }
+.center {
+  position: relative;   
+  flex: 1;
+  max-width: 360px;     
+  margin: 0 24px;
+}
 
 .searchWrapper {
   position: relative;
@@ -83,10 +69,8 @@
 }
 
 .searchIcon {
-  position: absolute;
-  left: 12px;
-  color: #4b5563;
-  font-size: 16px;
+  position: absolute; left: 12px;
+  color: #4b5563; font-size: 16px;
   pointer-events: none;
 }
 
@@ -109,37 +93,27 @@
 }
 
 .searchShortcut {
-  position: absolute;
-  right: 10px;
+  position: absolute; right: 10px;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  color: #374151;
+  font-size: 10px; color: #374151;
   background: #1a1a1a;
-  padding: 2px 5px;
-  border-radius: 4px;
+  padding: 2px 5px; border-radius: 4px;
   border: 1px solid #262626;
+  pointer-events: none;
 }
 
 /* ── Right ─────────────────────────────────────────────────────── */
 .right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 220px;
-  justify-content: flex-end;
+  display: flex; align-items: center; gap: 8px;
+  min-width: 220px; justify-content: flex-end;
 }
 
 .goLiveBtn {
-  display: flex;
-  align-items: center;
-  gap: 7px;
+  display: flex; align-items: center; gap: 7px;
   padding: 7px 16px;
-  background: #e8ff47;
-  color: #0a0a0a;
-  border: none;
-  border-radius: 7px;
-  font-size: 13px;
-  font-weight: 700;
+  background: #e8ff47; color: #0a0a0a;
+  border: none; border-radius: 7px;
+  font-size: 13px; font-weight: 700;
   font-family: 'Syne', sans-serif;
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
@@ -148,11 +122,8 @@
 .goLiveBtn:active { transform: scale(0.98); }
 
 .liveDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
+  width: 6px; height: 6px; border-radius: 50%;
   background: #0a0a0a;
-  box-shadow: 0 0 0 0 rgba(10,10,10,0.4);
   animation: livePulse 1.5s infinite;
 }
 @keyframes livePulse {
@@ -163,92 +134,64 @@
 
 .iconBtn {
   position: relative;
-  width: 36px;
-  height: 36px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  border-radius: 6px;
+  width: 36px; height: 36px;
+  background: transparent; border: none;
+  cursor: pointer; border-radius: 6px;
   transition: background 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
 }
 .iconBtn:hover { background: #111; }
 
 .notifIcon { font-size: 16px; color: #6b7280; }
 
 .notifBadge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 14px;
-  height: 14px;
-  background: #e8ff47;
-  color: #0a0a0a;
+  position: absolute; top: 4px; right: 4px;
+  width: 14px; height: 14px;
+  background: #e8ff47; color: #0a0a0a;
   border-radius: 50%;
-  font-size: 9px;
-  font-weight: 700;
+  font-size: 9px; font-weight: 700;
   font-family: 'IBM Plex Mono', monospace;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
 }
 
 /* ── User menu ─────────────────────────────────────────────────── */
 .userMenu { position: relative; }
 
 .avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
+  width: 34px; height: 34px; border-radius: 8px;
   background: linear-gradient(135deg, #e8ff47 0%, #b8cc00 100%);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
   transition: transform 0.1s, box-shadow 0.15s;
 }
 .avatar:hover { transform: scale(1.05); box-shadow: 0 0 0 2px rgba(232,255,71,0.3); }
 
 .avatarText {
-  font-size: 13px;
-  font-weight: 800;
-  color: #0a0a0a;
-  font-family: 'Syne', sans-serif;
+  font-size: 13px; font-weight: 800;
+  color: #0a0a0a; font-family: 'Syne', sans-serif;
 }
 
-.dropdownOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 99;
-}
+.dropdownOverlay { position: fixed; inset: 0; z-index: 99; }
 
 .dropdown {
   position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
+  top: calc(100% + 8px); right: 0;
   width: 220px;
   background: #111;
   border: 1px solid #1f2937;
   border-radius: 10px;
   box-shadow: 0 16px 40px rgba(0,0,0,0.6);
-  z-index: 100;
-  overflow: hidden;
+  z-index: 100; overflow: hidden;
   animation: dropIn 0.15s ease;
 }
-
 @keyframes dropIn {
   from { opacity: 0; transform: translateY(-8px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
 }
 
 .dropdownHeader {
   padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  display: flex; flex-direction: column; gap: 2px;
 }
 .dropdownUsername { font-size: 14px; font-weight: 700; color: #f9fafb; }
 .dropdownEmail    { font-size: 12px; color: #4b5563; font-family: 'IBM Plex Mono', monospace; }
@@ -257,26 +200,107 @@
 
 .dropdownItem {
   display: block;
+  width: 100%;
   padding: 10px 16px;
-  font-size: 14px;
-  color: #9ca3af;
-  text-decoration: none;
-  transition: background 0.1s, color 0.1s;
+  background: transparent; border: none;
+  text-align: left; text-decoration: none;
+  font-size: 13px; font-weight: 600;
   font-family: 'Syne', sans-serif;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
 }
-.dropdownItem:hover { background: #1a1a1a; color: #f9fafb; }
+.dropdownItem:hover { background: #1a1a1a; color: #d1d5db; }
 
 .dropdownItemDanger {
   display: block;
   width: 100%;
   padding: 10px 16px;
-  font-size: 14px;
-  color: #f87171;
-  background: transparent;
-  border: none;
+  background: transparent; border: none;
   text-align: left;
-  cursor: pointer;
-  transition: background 0.1s;
+  font-size: 13px; font-weight: 600;
   font-family: 'Syne', sans-serif;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
 }
-.dropdownItemDanger:hover { background: rgba(239,68,68,0.08); }
+.dropdownItemDanger:hover { background: rgba(239,68,68,0.08); color: #f87171; }
+
+/* ── Search dropdown ───────────────────────────────────────────── */
+.searchDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0; right: 0;   
+  background: #111;
+  border: 1px solid #1f2937;
+  border-radius: 10px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+  z-index: 200;
+  overflow: hidden;
+  animation: dropIn 0.15s ease;
+}
+
+.searchEmpty {
+  padding: 16px;
+  font-size: 13px; color: #4b5563;
+  font-family: 'IBM Plex Mono', monospace;
+  text-align: center;
+}
+
+.searchResult {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 10px 14px;
+  background: transparent; border: none;
+  cursor: pointer; text-align: left;
+  transition: background 0.1s;
+}
+.searchResult:hover { background: #1a1a1a; }
+
+.searchAvatar {
+  position: relative;
+  width: 34px; height: 34px; border-radius: 8px;
+  background: linear-gradient(135deg, #1f2937, #111827);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: #9ca3af;
+  font-family: 'Syne', sans-serif;
+  flex-shrink: 0; overflow: hidden;
+}
+.searchAvatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.searchLiveDot {
+  position: absolute; bottom: -2px; right: -2px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #ef4444; border: 2px solid #111;
+}
+
+.searchResultText {
+  flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0;
+}
+.searchUsername {
+  font-size: 13px; font-weight: 700;
+  color: #d1d5db; font-family: 'Syne', sans-serif;
+}
+.searchDisplayName {
+  font-size: 12px; color: #6b7280;
+  font-family: 'IBM Plex Mono', monospace;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.searchLiveBadge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; font-weight: 700;
+  color: #ef4444;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  padding: 2px 6px; border-radius: 4px;
+  letter-spacing: 0.08em; flex-shrink: 0;
+}
+
+.searchSpinner {
+  position: absolute; right: 10px;
+  width: 12px; height: 12px;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-top-color: #6b7280;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }

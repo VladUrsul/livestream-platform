@@ -21,6 +21,8 @@ migrate-db:
 	docker exec auth-db psql -U auth_user -d auth_db -f /migrate.sql
 	docker cp services/stream-service/migrations/001_create_streams_tables.up.sql stream-db:/migrate.sql
 	docker exec stream-db psql -U stream_user -d stream_db -f /migrate.sql
+	docker cp services/user-service/migrations/001_create_profiles.up.sql user-db:/migrate.sql
+	docker exec user-db psql -U user_user -d user_db -f /migrate.sql
 	@echo "Database migrations completed"
 
 logs:

@@ -19,6 +19,24 @@ services:
       timeout: 5s
       retries: 5
 
+  user-db:
+    image: postgres:16-alpine
+    container_name: user-db
+    environment:
+      POSTGRES_DB:       user_db
+      POSTGRES_USER:     user_user
+      POSTGRES_PASSWORD: user_pass
+    ports:
+      - "5434:5432"
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_user -d user_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
   stream-db:
     image: postgres:16-alpine
     container_name: stream-db
@@ -73,6 +91,7 @@ services:
     environment:
       SERVER_PORT: "8080"
       AUTH_SERVICE_URL: http://auth-service:8081
+      USER_SERVICE_URL: http://user-service:8082
       STREAM_SERVICE_URL: http://stream-service:8083
       CORS_ORIGIN: http://localhost:3000
     depends_on:
@@ -88,6 +107,8 @@ services:
       - "8081:8081"
     environment:
       SERVER_PORT:             "8081"
+      RABBITMQ_URL: amqp://rabbit_user:rabbit_pass@rabbitmq:5672/
+      AUTH_EXCHANGE: auth.events
       DB_HOST:                 auth-db
       DB_PORT:                 "5432"
       DB_USER:                 auth_user
@@ -105,6 +126,35 @@ services:
       auth-db:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+  
+  user-service:
+    build:
+      context: ./services/user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    ports:
+      - "8082:8082"
+    environment:
+      SERVER_PORT:       "8082"
+      DB_HOST:           user-db
+      DB_PORT:           "5432"
+      DB_USER:           user_user
+      DB_PASSWORD:       user_pass
+      DB_NAME:           user_db
+      DB_SSLMODE:        disable
+      RABBITMQ_URL:      amqp://rabbit_user:rabbit_pass@rabbitmq:5672/
+      AUTH_EXCHANGE:     auth.events
+      STREAM_EXCHANGE:   stream.events
+      USER_QUEUE_NAME:   user-service.events
+      JWT_ACCESS_SECRET: change-this-in-production
+    depends_on:
+      user-db:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     restart: unless-stopped
   
@@ -155,3 +205,4 @@ services:
 volumes:
   auth-db-data:
   stream-db-data:
+  user-db-data:
