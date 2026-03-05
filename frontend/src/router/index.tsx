@@ -9,6 +9,7 @@ const Dashboard = lazy(() => import('../pages/Dashboard'));
 const GoLive      = lazy(() => import('../pages/GoLive'));
 const StreamPage  = lazy(() => import('../pages/StreamPage'));
 const ChannelPage = lazy(() => import('../pages/ChannelPage'));
+const FollowingPage = lazy(() => import('../pages/FollowingPage'));
 
 const Loader = () => (
   <div style={{
@@ -47,7 +48,11 @@ export const router = createBrowserRouter([
             element: S(StreamPage) 
           },
           { path: '/channel/:username',  
-            element: S(ChannelPage) },
+            element: S(ChannelPage) 
+          },
+          { path: '/following',  
+            element: S(FollowingPage) 
+          },
         ],
       },
     ],

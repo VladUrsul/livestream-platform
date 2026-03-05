@@ -23,6 +23,7 @@ type UserService interface {
 	Follow(ctx context.Context, followerID, followeeID uuid.UUID) error
 	Unfollow(ctx context.Context, followerID, followeeID uuid.UUID) error
 	IsFollowing(ctx context.Context, followerID, followeeID uuid.UUID) (bool, error)
+	GetFollowing(ctx context.Context, userID uuid.UUID) ([]*domain.SearchResult, error)
 	CreateFromEvent(ctx context.Context, e domain.UserRegisteredEvent) error
 	SetLiveStatus(ctx context.Context, userID uuid.UUID, isLive bool) error
 }
@@ -92,6 +93,17 @@ func (s *svc) Unfollow(ctx context.Context, followerID, followeeID uuid.UUID) er
 
 func (s *svc) IsFollowing(ctx context.Context, followerID, followeeID uuid.UUID) (bool, error) {
 	return s.repo.IsFollowing(ctx, followerID, followeeID)
+}
+
+func (s *svc) GetFollowing(ctx context.Context, userID uuid.UUID) ([]*domain.SearchResult, error) {
+	results, err := s.repo.GetFollowing(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	if results == nil {
+		return []*domain.SearchResult{}, nil
+	}
+	return results, nil
 }
 
 func (s *svc) CreateFromEvent(ctx context.Context, e domain.UserRegisteredEvent) error {

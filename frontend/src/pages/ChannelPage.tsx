@@ -82,13 +82,17 @@ export default function ChannelPage() {
 
     const load = async () => {
       try {
-        const [profileData, streamData] = await Promise.all([
+        const [profileData, streamData, isFollowingData] = await Promise.all([
           userService.getProfile(username),
           streamService.getStreamInfo(username).catch(() => null),
+          me && me.username !== username
+          ? userService.isFollowing(username)
+          : Promise.resolve(false),
         ]);
         if (cancelled) return;
         setProfile(profileData);
         setStream(streamData);
+        setFollowing(isFollowingData);
         setLoading(false);
 
         if (streamData?.status === 'live' && streamData.hls_url && streamData.hls_url !== lastHlsUrl) {

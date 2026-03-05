@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { streamService } from '../services/streamService';
+import { userService } from '../services/userService';
 import { type StreamInfo } from '../types/stream.types';
+import { type Profile } from '../types/user.types';
 import styles from './Dashboard.module.css';
 
 const categories = [
@@ -29,6 +31,7 @@ export default function Dashboard() {
   const navigate  = useNavigate();
 
   const [liveStreams, setLiveStreams] = useState<StreamInfo[]>([]);
+  const [profile,    setProfile]     = useState<Profile | null>(null);
   const [loading,    setLoading]     = useState(true);
 
   const hour     = new Date().getHours();
@@ -37,10 +40,12 @@ export default function Dashboard() {
   useEffect(() => {
     const load = async () => {
       try {
-        const streams = await streamService.getLiveStreams();
+        const [streams, profileData] = await Promise.all([
+          streamService.getLiveStreams().catch(() => []),
+          user?.username ? userService.getProfile(user.username).catch(() => null) : Promise.resolve(null),
+        ]);
         setLiveStreams(streams ?? []);
-      } catch {
-        setLiveStreams([]);
+        setProfile(profileData);
       } finally {
         setLoading(false);
       }
@@ -48,7 +53,7 @@ export default function Dashboard() {
     load();
     const interval = setInterval(load, 30_000);
     return () => clearInterval(interval);
-  }, []);
+  }, [user?.username]);
 
   return (
     <div className={styles.page}>
@@ -68,12 +73,16 @@ export default function Dashboard() {
 
         <div className={styles.heroStats}>
           <div className={styles.heroStat}>
-            <span className={styles.heroStatNum}>0</span>
+            <span className={styles.heroStatNum}>
+              {profile ? profile.followers.toLocaleString() : '—'}
+            </span>
             <span className={styles.heroStatLabel}>Followers</span>
           </div>
           <div className={styles.heroStatDivider} />
           <div className={styles.heroStat}>
-            <span className={styles.heroStatNum}>0</span>
+            <span className={styles.heroStatNum}>
+              {profile ? profile.following.toLocaleString() : '—'}
+            </span>
             <span className={styles.heroStatLabel}>Following</span>
           </div>
           <div className={styles.heroStatDivider} />

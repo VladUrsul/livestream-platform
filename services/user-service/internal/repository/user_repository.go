@@ -24,6 +24,7 @@ type UserRepository interface {
 	Follow(ctx context.Context, followerID, followeeID uuid.UUID) error
 	Unfollow(ctx context.Context, followerID, followeeID uuid.UUID) error
 	IsFollowing(ctx context.Context, followerID, followeeID uuid.UUID) (bool, error)
+	GetFollowing(ctx context.Context, userID uuid.UUID) ([]*domain.SearchResult, error)
 	SetLiveStatus(ctx context.Context, userID uuid.UUID, isLive bool) error
 }
 
@@ -124,6 +125,29 @@ func (r *postgresRepo) IsFollowing(ctx context.Context, followerID, followeeID u
 		followerID, followeeID,
 	).Scan(&exists)
 	return exists, err
+}
+
+func (r *postgresRepo) GetFollowing(ctx context.Context, userID uuid.UUID) ([]*domain.SearchResult, error) {
+	rows, err := r.db.Query(ctx, `
+		SELECT p.user_id, p.username, p.display_name, p.avatar_url, p.followers, p.is_live
+		FROM follows f
+		JOIN profiles p ON p.user_id = f.followee_id
+		WHERE f.follower_id = $1
+		ORDER BY p.is_live DESC, p.followers DESC
+	`, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []*domain.SearchResult
+	for rows.Next() {
+		s := &domain.SearchResult{}
+		if err := rows.Scan(&s.UserID, &s.Username, &s.DisplayName, &s.AvatarURL, &s.Followers, &s.IsLive); err != nil {
+			return nil, err
+		}
+		out = append(out, s)
+	}
+	return out, nil
 }
 
 func (r *postgresRepo) SetLiveStatus(ctx context.Context, userID uuid.UUID, isLive bool) error {
