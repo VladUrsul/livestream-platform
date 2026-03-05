@@ -32,4 +32,13 @@ export const userService = {
   unfollow: async (username: string): Promise<void> => {
     await api.delete(`/users/${username}/follow`);
   },
+
+  isFollowing: async (username: string): Promise<boolean> => {
+  try {
+    const { data } = await api.get<{ following: boolean }>(`/users/${username}/follow`);
+    return data.following;
+  } catch {
+    return false;
+  }
+},
 };

@@ -23,6 +23,7 @@ func (h *Handler) Register(api *gin.RouterGroup, jwtSecret string) {
 	a.Use(AuthMiddleware(jwtSecret))
 	a.GET("/me", h.Me)
 	a.PUT("/me", h.UpdateProfile)
+	a.GET("/:username/follow", h.IsFollowing)
 	a.POST("/:username/follow", h.Follow)
 	a.DELETE("/:username/follow", h.Unfollow)
 }
@@ -36,6 +37,25 @@ func (h *Handler) Search(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"users": results})
+}
+
+// GET /api/v1/users/:username/follow
+func (h *Handler) IsFollowing(c *gin.Context) {
+	followerID, ok := callerID(c)
+	if !ok {
+		return
+	}
+	target, err := h.svc.GetProfile(c.Request.Context(), c.Param("username"))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return
+	}
+	isFollowing, err := h.svc.IsFollowing(c.Request.Context(), followerID, target.UserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"following": isFollowing})
 }
 
 // GET /api/v1/users/me
