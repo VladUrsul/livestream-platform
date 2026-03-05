@@ -33,6 +33,11 @@ export const userService = {
     await api.delete(`/users/${username}/follow`);
   },
 
+  getFollowing: async (): Promise<SearchResult[]> => {
+    const { data } = await api.get<{ users: SearchResult[] }>('/users/me/following');
+    return data.users ?? [];
+  },
+
   isFollowing: async (username: string): Promise<boolean> => {
   try {
     const { data } = await api.get<{ following: boolean }>(`/users/${username}/follow`);
