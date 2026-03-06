@@ -23,6 +23,22 @@
   background: #050505;
 }
 
+.watchBtn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 20px;
+  background: #ef4444; color: #fff;
+  border: none; border-radius: 8px;
+  font-size: 13px; font-weight: 700;
+  font-family: 'Syne', sans-serif;
+  cursor: pointer; transition: background 0.15s;
+}
+.watchBtn:hover { background: #f87171; }
+
+.watchBtnDot {
+  width: 6px; height: 6px; border-radius: 50%; background: #fff;
+  animation: pulse 1.5s infinite;
+}
+
 .offlineAvatar {
   width: 80px; height: 80px; border-radius: 16px;
   background: linear-gradient(135deg, #1f2937, #111827);

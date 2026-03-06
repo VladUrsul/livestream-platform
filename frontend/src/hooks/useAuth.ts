@@ -11,9 +11,7 @@ import {
 
 export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { user, isAuthenticated, isLoading, error } = useSelector(
-    (state: RootState) => state.auth
-  );
+  const authState = useSelector((state: RootState) => state.auth);
 
   const handleRegister = async (input: RegisterInput) => {
     const result = await dispatch(register(input));
@@ -34,13 +32,14 @@ export const useAuth = () => {
   };
 
   return {
-    user,
-    isAuthenticated,
-    isLoading,
-    error,
-    register: handleRegister,
-    login:    handleLogin,
-    logout:   handleLogout,
-    clearError: handleClearError,
+    user:            authState.user,
+    isAuthenticated: authState.isAuthenticated,
+    isLoading:       authState.isLoading,
+    error:           authState.error,
+    accessToken:     authState.accessToken,
+    register:        handleRegister,
+    login:           handleLogin,
+    logout:          handleLogout,
+    clearError:      handleClearError,
   };
 };

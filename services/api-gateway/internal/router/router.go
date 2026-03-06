@@ -32,6 +32,10 @@ func New(cfg *config.Config) (*gin.Engine, error) {
 		return nil, err
 	}
 
+	chatProxy, _ := proxy.NewServiceProxy(cfg.Services.ChatServiceURL)
+	r.Any("/ws/*path", chatProxy.Forward())
+	r.Any("/api/v1/chat/*path", chatProxy.Forward())
+
 	userProxy, _ := proxy.NewServiceProxy(cfg.Services.UserServiceURL)
 
 	// ── Route groups ──────────────────────────────────────────────────────

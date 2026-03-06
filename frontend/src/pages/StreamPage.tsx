@@ -1,16 +1,22 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Hls from 'hls.js';
 import { streamService } from '../services/streamService';
+import { userService } from '../services/userService';
+import { useAuth } from '../hooks/useAuth';
 import { type StreamInfo } from '../types/stream.types';
+import ChatPanel from '../components/chat/ChatPanel';
 import styles from './StreamPage.module.css';
 
-const POLL_INTERVAL = 5000; // poll every 5s so going-live is detected quickly
+const POLL_INTERVAL = 5000;
 
 export default function StreamPage() {
   const { username } = useParams<{ username: string }>();
-  const videoRef  = useRef<HTMLVideoElement>(null);
-  const hlsRef    = useRef<Hls | null>(null);
+  const navigate     = useNavigate();
+  const { user: me } = useAuth();
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const hlsRef   = useRef<Hls | null>(null);
 
   const [stream,     setStream]     = useState<StreamInfo | null>(null);
   const [loading,    setLoading]    = useState(true);
@@ -19,37 +25,25 @@ export default function StreamPage() {
   const [muted,      setMuted]      = useState(true);
   const [volume,     setVolume]     = useState(1);
   const [fullscreen, setFullscreen] = useState(false);
+  const [following,  setFollowing]  = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
 
-  // ── Destroy HLS instance ──────────────────────────────────────────
+  const isOwner = me?.username === username;
+
+  // ── HLS ───────────────────────────────────────────────────────────
   const destroyHls = useCallback(() => {
-    if (hlsRef.current) {
-      hlsRef.current.destroy();
-      hlsRef.current = null;
-    }
-    if (videoRef.current) {
-      videoRef.current.removeAttribute('src');
-      videoRef.current.load();
-    }
+    if (hlsRef.current) { hlsRef.current.destroy(); hlsRef.current = null; }
+    if (videoRef.current) { videoRef.current.removeAttribute('src'); videoRef.current.load(); }
   }, []);
 
-  // ── Start HLS playback for a given URL ───────────────────────────
   const startHls = useCallback((hlsUrl: string) => {
     const attemptStart = (attemptsLeft: number) => {
       const video = videoRef.current;
-
       if (!video) {
-        if (attemptsLeft > 0) {
-          // Video element not in DOM yet — retry after next frame
-          setTimeout(() => attemptStart(attemptsLeft - 1), 100);
-          return;
-        }
-        console.warn('[HLS] video element never became available');
+        if (attemptsLeft > 0) { setTimeout(() => attemptStart(attemptsLeft - 1), 100); return; }
         return;
       }
-
-      console.log('[HLS] startHls attached', { hlsUrl });
       destroyHls();
-
       if (Hls.isSupported()) {
         const hls = new Hls({
           lowLatencyMode: true,
@@ -60,23 +54,15 @@ export default function StreamPage() {
           levelLoadingMaxRetry: 6,
           fragLoadingMaxRetry: 6,
         });
-
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          console.log('[HLS] manifest parsed — playing');
-          video.muted = true; // ensure muted for autoplay policy
-          video.play().catch(e => console.warn('[HLS] play failed', e));
+          video.muted = true;
+          video.play().catch(() => {});
         });
-
         hls.on(Hls.Events.ERROR, (_, data) => {
-          console.error('[HLS] error', data.type, data.details, data.fatal);
           if (data.fatal) {
             if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-              // Manifest may not exist yet — keep retrying every 2s
               setTimeout(() => {
-                if (hlsRef.current) {
-                  hls.loadSource(hlsUrl);
-                  hls.startLoad();
-                }
+                if (hlsRef.current) { hls.loadSource(hlsUrl); hls.startLoad(); }
               }, 2000);
             } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
               hls.recoverMediaError();
@@ -85,11 +71,9 @@ export default function StreamPage() {
               destroyHls();
             }
           } else if (data.details === Hls.ErrorDetails.BUFFER_APPEND_ERROR) {
-            // Non-fatal buffer errors — recover media
             hls.recoverMediaError();
           }
         });
-
         hls.loadSource(hlsUrl);
         hls.attachMedia(video);
         hlsRef.current = hls;
@@ -98,62 +82,55 @@ export default function StreamPage() {
         video.play().catch(() => {});
       }
     };
-
-    attemptStart(10); // retry up to 10 times × 100ms = 1 second max wait
+    attemptStart(10);
   }, [destroyHls]);
 
-  // ── Poll stream info ──────────────────────────────────────────────
+  // ── Poll stream + init follow state ───────────────────────────────
   useEffect(() => {
     if (!username) return;
-    let cancelled = false;
-    // Track what HLS URL we last loaded so we only re-init when it changes
+    let cancelled  = false;
     let lastHlsUrl: string | null = null;
-    let lastStatus: string | null = null;
 
-    const fetchAndUpdate = async () => {
+    const init = async () => {
       try {
-        const info = await streamService.getStreamInfo(username);
+        const [info, isFollowingData] = await Promise.all([
+          streamService.getStreamInfo(username),
+          me && me.username !== username
+            ? userService.isFollowing(username)
+            : Promise.resolve(false),
+        ]);
         if (cancelled) return;
-
         setStream(info);
         setViewers(info.viewer_count);
-        setError(null);
-
-        const hlsUrl = info.hls_url ?? null;
-        const status = info.status;
-
-        if (status === 'live' && hlsUrl) {
-          // Start or restart player if URL changed (new stream session)
-          if (hlsUrl !== lastHlsUrl) {
-            lastHlsUrl = hlsUrl;
-            startHls(hlsUrl);
-          }
-        } else {
-          // Stream went offline — destroy player
-          if (lastHlsUrl !== null) {
-            lastHlsUrl = null;
-            destroyHls();
-          }
+        setFollowing(isFollowingData);
+        setLoading(false);
+        if (info.status === 'live' && info.hls_url) {
+          lastHlsUrl = info.hls_url;
+          startHls(info.hls_url);
         }
-
-        lastStatus = status;
       } catch (err: any) {
-        if (!cancelled) {
-          setError(err.response?.data?.error || 'Stream not found');
-          setLoading(false);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) { setError(err.response?.data?.error || 'Stream not found'); setLoading(false); }
       }
     };
 
-    // Initial fetch immediately
-    fetchAndUpdate();
-
-    // Join viewer count
+    init();
     streamService.joinStream(username).catch(() => {});
 
-    const interval = setInterval(fetchAndUpdate, POLL_INTERVAL);
+    const interval = setInterval(async () => {
+      try {
+        const info = await streamService.getStreamInfo(username);
+        if (cancelled) return;
+        setStream(info);
+        setViewers(info.viewer_count);
+        if (info.status === 'live' && info.hls_url && info.hls_url !== lastHlsUrl) {
+          lastHlsUrl = info.hls_url;
+          startHls(info.hls_url);
+        } else if (info.status !== 'live' && lastHlsUrl) {
+          lastHlsUrl = null;
+          destroyHls();
+        }
+      } catch {}
+    }, POLL_INTERVAL);
 
     return () => {
       cancelled = true;
@@ -161,7 +138,23 @@ export default function StreamPage() {
       streamService.leaveStream(username).catch(() => {});
       destroyHls();
     };
-  }, [username, startHls, destroyHls]);
+  }, [username, me, startHls, destroyHls]);
+
+  // ── Follow ────────────────────────────────────────────────────────
+  const toggleFollow = async () => {
+    if (!me || isOwner || !username) return;
+    setFollowLoading(true);
+    try {
+      if (following) {
+        await userService.unfollow(username);
+        setFollowing(false);
+      } else {
+        await userService.follow(username);
+        setFollowing(true);
+      }
+    } catch {}
+    setFollowLoading(false);
+  };
 
   // ── Controls ──────────────────────────────────────────────────────
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -190,6 +183,13 @@ export default function StreamPage() {
   };
 
   // ── Render ────────────────────────────────────────────────────────
+  if (!username) return (
+    <div className={styles.centerState}>
+      <span className={styles.errorIcon}>◎</span>
+      <p>Channel not found</p>
+    </div>
+  );
+
   if (loading) return (
     <div className={styles.centerState}>
       <span className={styles.spinner} />
@@ -209,12 +209,11 @@ export default function StreamPage() {
   return (
     <div className={styles.page}>
       <div className={styles.layout}>
-        <div className={styles.playerCol}>
 
-          {/* Video player */}
+        {/* ── Player column ── */}
+        <div className={styles.playerCol}>
           <div className={styles.playerWrap} id="stream-player-wrap">
 
-            {/* Video is ALWAYS in the DOM — display toggled via CSS only */}
             <video
               ref={videoRef}
               className={styles.video}
@@ -223,35 +222,27 @@ export default function StreamPage() {
               autoPlay
             />
 
-            {/* Offline screen sits on top when not live */}
             {!isLive && (
               <div className={styles.offlineScreen}>
                 <div className={styles.offlineIcon}>◈</div>
                 <h3 className={styles.offlineTitle}>@{username} is offline</h3>
                 <p className={styles.offlineText}>
-                  {stream?.status === 'ended'
-                    ? 'This stream has ended.'
-                    : 'Waiting for stream to start...'}
+                  {stream?.status === 'ended' ? 'This stream has ended.' : 'Waiting for stream to start...'}
                 </p>
                 <p className={styles.offlinePoll}>Checking every 5 seconds</p>
               </div>
             )}
 
-            {/* Unmute prompt — shown when playing muted after autoplay */}
             {isLive && muted && (
               <button
                 className={styles.unmutePrompt}
-                onClick={() => {
-                  if (videoRef.current) videoRef.current.muted = false;
-                  setMuted(false);
-                }}
+                onClick={() => { if (videoRef.current) videoRef.current.muted = false; setMuted(false); }}
               >
                 <span className={styles.unmuteIcon}>🔇</span>
                 <span>Click to unmute</span>
               </button>
             )}
 
-            {/* Overlays — only when live */}
             {isLive && (
               <>
                 <div className={styles.controls}>
@@ -272,15 +263,8 @@ export default function StreamPage() {
                     </button>
                   </div>
                 </div>
-
-                <div className={styles.liveBadge}>
-                  <span className={styles.liveDot} />
-                  LIVE
-                </div>
-
-                <div className={styles.viewerBadge}>
-                  ◎ {viewers.toLocaleString()}
-                </div>
+                <div className={styles.liveBadge}><span className={styles.liveDot} />LIVE</div>
+                <div className={styles.viewerBadge}>◎ {viewers.toLocaleString()}</div>
               </>
             )}
           </div>
@@ -289,9 +273,12 @@ export default function StreamPage() {
           {stream && (
             <div className={styles.infoBar}>
               <div className={styles.infoBarLeft}>
-                <div className={styles.streamerAvatar}>
+                <button
+                  className={styles.streamerAvatar}
+                  onClick={() => navigate(`/channel/${username}`)}
+                >
                   {username?.[0]?.toUpperCase()}
-                </div>
+                </button>
                 <div className={styles.infoBarText}>
                   <h1 className={styles.streamTitle}>{stream.title}</h1>
                   <div className={styles.streamMeta}>
@@ -318,12 +305,27 @@ export default function StreamPage() {
                     <span>{viewers.toLocaleString()} watching</span>
                   </div>
                 )}
-                <button className={styles.followBtn}>Follow</button>
+                {!isOwner && me && (
+                  <button
+                    className={`${styles.followBtn} ${following ? styles.followBtnActive : ''}`}
+                    onClick={toggleFollow}
+                    disabled={followLoading}
+                  >
+                    {followLoading ? '...' : following ? 'Unfollow' : 'Follow'}
+                  </button>
+                )}
               </div>
             </div>
           )}
-
         </div>
+
+        {/* ── Chat column ── */}
+        <div className={styles.chatCol}>
+          {username && (
+            <ChatPanel roomID={username} isOwner={isOwner} />
+          )}
+        </div>
+
       </div>
     </div>
   );
