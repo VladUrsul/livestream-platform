@@ -23,6 +23,8 @@ migrate-db:
 	docker exec stream-db psql -U stream_user -d stream_db -f /migrate.sql
 	docker cp services/user-service/migrations/001_create_profiles.up.sql user-db:/migrate.sql
 	docker exec user-db psql -U user_user -d user_db -f /migrate.sql
+	docker cp services/chat-service/migrations/001_create_chat_tables.up.sql chat-db:/migrate.sql
+	docker exec chat-db psql -U chat_user -d chat_db -f /migrate.sql
 	@echo "Database migrations completed"
 
 logs:

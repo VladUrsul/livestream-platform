@@ -54,6 +54,23 @@ services:
       timeout: 5s
       retries: 5
 
+  chat-db:
+    image: postgres:16-alpine
+    container_name: chat-db
+    environment:
+      POSTGRES_DB:       chat_db
+      POSTGRES_USER:     chat_user
+      POSTGRES_PASSWORD: chat_pass
+    ports:
+      - "5435:5432"
+    volumes:
+      - chat-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chat_user -d chat_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   redis:
     image: redis:7-alpine
     container_name: redis
@@ -93,6 +110,7 @@ services:
       AUTH_SERVICE_URL: http://auth-service:8081
       USER_SERVICE_URL: http://user-service:8082
       STREAM_SERVICE_URL: http://stream-service:8083
+      CHAT_SERVICE_URL: http://chat-service:8084
       CORS_ORIGIN: http://localhost:3000
     depends_on:
       - auth-service
@@ -190,6 +208,31 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  chat-service:
+    build:
+      context: ./services/chat-service
+      dockerfile: Dockerfile
+    container_name: chat-service
+    ports:
+      - "8084:8084"
+    environment:
+      SERVER_PORT:       "8084"
+      DB_HOST:           chat-db
+      DB_PORT:           "5432"
+      DB_USER:           chat_user
+      DB_PASSWORD:       chat_pass
+      DB_NAME:           chat_db
+      DB_SSLMODE:        disable
+      RABBITMQ_URL:      amqp://rabbit_user:rabbit_pass@rabbitmq:5672/
+      CHAT_EXCHANGE:     chat.events
+      JWT_ACCESS_SECRET: change-this-in-production
+    depends_on:
+      chat-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
   frontend:
     build:
       context: ./frontend
@@ -206,3 +249,4 @@ volumes:
   auth-db-data:
   stream-db-data:
   user-db-data:
+  chat-db-data:

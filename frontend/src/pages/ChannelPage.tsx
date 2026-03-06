@@ -242,6 +242,12 @@ export default function ChannelPage() {
         </div>
 
         <div className={styles.profileActions}>
+          {isLive && (
+            <button className={styles.watchBtn} onClick={() => navigate(`/stream/${username}`)}>
+              <span className={styles.watchBtnDot} />
+              Watch Live
+            </button>
+          )}
           {isOwner ? (
             <button className={styles.editBtn} onClick={() => navigate('/go-live')}>
               ◈ Go Live
