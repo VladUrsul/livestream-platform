@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
+	"log"
 
 	"github.com/VladUrsul/livestream-platform/services/user-service/internal/domain"
 	"github.com/VladUrsul/livestream-platform/services/user-service/internal/repository"
@@ -15,83 +15,110 @@ var (
 	ErrCannotFollow = errors.New("cannot follow yourself")
 )
 
+type EventPublisher interface {
+	Publish(routingKey string, payload any) error
+}
+
 type UserService interface {
 	GetProfile(ctx context.Context, username string) (*domain.Profile, error)
 	GetProfileByID(ctx context.Context, userID uuid.UUID) (*domain.Profile, error)
 	UpdateProfile(ctx context.Context, userID uuid.UUID, input domain.UpdateProfileInput) (*domain.Profile, error)
 	Search(ctx context.Context, query string) ([]*domain.SearchResult, error)
-	Follow(ctx context.Context, followerID, followeeID uuid.UUID) error
-	Unfollow(ctx context.Context, followerID, followeeID uuid.UUID) error
-	IsFollowing(ctx context.Context, followerID, followeeID uuid.UUID) (bool, error)
+	Follow(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) error
+	Unfollow(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) error
+	IsFollowing(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) (bool, error)
 	GetFollowing(ctx context.Context, userID uuid.UUID) ([]*domain.SearchResult, error)
-	CreateFromEvent(ctx context.Context, e domain.UserRegisteredEvent) error
+	CreateFromEvent(ctx context.Context, evt domain.UserRegisteredEvent) error
 	SetLiveStatus(ctx context.Context, userID uuid.UUID, isLive bool) error
 }
 
-type svc struct{ repo repository.UserRepository }
+type svc struct {
+	repo repository.UserRepository
+	pub  EventPublisher
+}
 
-func New(repo repository.UserRepository) UserService { return &svc{repo} }
+func NewUserService(repo repository.UserRepository, pub EventPublisher) UserService {
+	return &svc{repo: repo, pub: pub}
+}
+
+// keep old constructor name working too
+func New(repo repository.UserRepository) UserService {
+	return &svc{repo: repo, pub: nil}
+}
 
 func (s *svc) GetProfile(ctx context.Context, username string) (*domain.Profile, error) {
 	p, err := s.repo.GetByUsername(ctx, username)
-	if errors.Is(err, repository.ErrNotFound) {
+	if err != nil {
 		return nil, ErrNotFound
 	}
-	return p, err
+	return p, nil
 }
 
 func (s *svc) GetProfileByID(ctx context.Context, userID uuid.UUID) (*domain.Profile, error) {
 	p, err := s.repo.GetByUserID(ctx, userID)
-	if errors.Is(err, repository.ErrNotFound) {
+	if err != nil {
 		return nil, ErrNotFound
 	}
-	return p, err
+	return p, nil
 }
 
 func (s *svc) UpdateProfile(ctx context.Context, userID uuid.UUID, input domain.UpdateProfileInput) (*domain.Profile, error) {
-	p, err := s.repo.GetByUserID(ctx, userID)
+	existing, err := s.repo.GetByUserID(ctx, userID)
 	if err != nil {
 		return nil, ErrNotFound
 	}
 	if input.DisplayName != "" {
-		p.DisplayName = input.DisplayName
+		existing.DisplayName = input.DisplayName
 	}
-	p.Bio = input.Bio
+	if input.Bio != "" {
+		existing.Bio = input.Bio
+	}
 	if input.AvatarURL != "" {
-		p.AvatarURL = input.AvatarURL
+		existing.AvatarURL = input.AvatarURL
 	}
-	if err := s.repo.Update(ctx, p); err != nil {
-		return nil, fmt.Errorf("update: %w", err)
+	if err := s.repo.Update(ctx, existing); err != nil {
+		return nil, err
 	}
-	return p, nil
+	return existing, nil
 }
 
 func (s *svc) Search(ctx context.Context, query string) ([]*domain.SearchResult, error) {
 	if len(query) < 1 {
 		return []*domain.SearchResult{}, nil
 	}
-	results, err := s.repo.Search(ctx, query, 10)
-	if err != nil {
-		return nil, err
-	}
-	if results == nil {
-		return []*domain.SearchResult{}, nil
-	}
-	return results, nil
+	return s.repo.Search(ctx, query, 10)
 }
 
-func (s *svc) Follow(ctx context.Context, followerID, followeeID uuid.UUID) error {
+func (s *svc) Follow(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) error {
 	if followerID == followeeID {
 		return ErrCannotFollow
 	}
-	return s.repo.Follow(ctx, followerID, followeeID)
+	if err := s.repo.Follow(ctx, followerID, followeeID); err != nil {
+		return err
+	}
+	// Publish user.followed event
+	if s.pub != nil {
+		follower, _ := s.repo.GetByUserID(ctx, followerID)
+		followerUsername := ""
+		if follower != nil {
+			followerUsername = follower.Username
+		}
+		if err := s.pub.Publish("user.followed", map[string]any{
+			"follower_id":       followerID,
+			"follower_username": followerUsername,
+			"followee_id":       followeeID,
+		}); err != nil {
+			log.Printf("[UserService] failed to publish user.followed: %v", err)
+		}
+	}
+	return nil
 }
 
-func (s *svc) Unfollow(ctx context.Context, followerID, followeeID uuid.UUID) error {
+func (s *svc) Unfollow(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) error {
 	return s.repo.Unfollow(ctx, followerID, followeeID)
 }
 
-func (s *svc) IsFollowing(ctx context.Context, followerID, followeeID uuid.UUID) (bool, error) {
+func (s *svc) IsFollowing(ctx context.Context, followerID uuid.UUID, followeeID uuid.UUID) (bool, error) {
 	return s.repo.IsFollowing(ctx, followerID, followeeID)
 }
 
@@ -106,13 +133,12 @@ func (s *svc) GetFollowing(ctx context.Context, userID uuid.UUID) ([]*domain.Sea
 	return results, nil
 }
 
-func (s *svc) CreateFromEvent(ctx context.Context, e domain.UserRegisteredEvent) error {
+func (s *svc) CreateFromEvent(ctx context.Context, evt domain.UserRegisteredEvent) error {
 	return s.repo.CreateProfile(ctx, &domain.Profile{
-		UserID:      e.UserID,
-		Username:    e.Username,
-		Email:       e.Email,
-		DisplayName: e.Username,
-		CreatedAt:   e.CreatedAt,
+		UserID:      evt.UserID,
+		Username:    evt.Username,
+		Email:       evt.Email,
+		DisplayName: evt.Username,
 	})
 }
 

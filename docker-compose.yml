@@ -71,6 +71,23 @@ services:
       timeout: 5s
       retries: 5
 
+  notification-db:
+    image: postgres:16-alpine
+    container_name: notification-db
+    environment:
+      POSTGRES_DB:       notification_db
+      POSTGRES_USER:     notif_user
+      POSTGRES_PASSWORD: notif_pass
+    ports:
+      - "5436:5432"
+    volumes:
+      - notification-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notif_user -d notification_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   redis:
     image: redis:7-alpine
     container_name: redis
@@ -111,6 +128,7 @@ services:
       USER_SERVICE_URL: http://user-service:8082
       STREAM_SERVICE_URL: http://stream-service:8083
       CHAT_SERVICE_URL: http://chat-service:8084
+      NOTIFICATION_SERVICE_URL: http://notification-service:8085
       CORS_ORIGIN: http://localhost:3000
     depends_on:
       - auth-service
@@ -167,6 +185,7 @@ services:
       RABBITMQ_URL:      amqp://rabbit_user:rabbit_pass@rabbitmq:5672/
       AUTH_EXCHANGE:     auth.events
       STREAM_EXCHANGE:   stream.events
+      USER_EXCHANGE:     user.events
       USER_QUEUE_NAME:   user-service.events
       JWT_ACCESS_SECRET: change-this-in-production
     depends_on:
@@ -233,6 +252,33 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  notification-service:
+    build:
+      context: ./services/notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
+    ports:
+      - "8085:8085"
+    environment:
+      SERVER_PORT:          "8085"
+      DB_HOST:              notification-db
+      DB_PORT:              "5432"
+      DB_USER:              notif_user
+      DB_PASSWORD:          notif_pass
+      DB_NAME:              notification_db
+      DB_SSLMODE:           disable
+      RABBITMQ_URL:         amqp://rabbit_user:rabbit_pass@rabbitmq:5672/
+      USER_EXCHANGE:        user.events
+      STREAM_EXCHANGE:      stream.events
+      NOTIFICATION_QUEUE:   notification-service.events
+      JWT_ACCESS_SECRET:    change-this-in-production
+    depends_on:
+      notification-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
   frontend:
     build:
       context: ./frontend
@@ -250,3 +296,4 @@ volumes:
   stream-db-data:
   user-db-data:
   chat-db-data:
+  notification-db-data:
