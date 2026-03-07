@@ -4,7 +4,6 @@ import { useAuth } from '../../hooks/useAuth';
 import { userService } from '../../services/userService';
 import { type SearchResult } from '../../types/user.types';
 import { useNotifications } from '../../hooks/useNotifications';
-import { type Notification } from '../../services/notificationService';
 import styles from './Navbar.module.css';
 
 interface NavbarProps {
