@@ -25,6 +25,8 @@ migrate-db:
 	docker exec user-db psql -U user_user -d user_db -f /migrate.sql
 	docker cp services/chat-service/migrations/001_create_chat_tables.up.sql chat-db:/migrate.sql
 	docker exec chat-db psql -U chat_user -d chat_db -f /migrate.sql
+	docker cp services/notification-service/migrations/001_create_notifications.up.sql notification-db:/migrate.sql
+	docker exec notification-db psql -U notif_user -d notification_db -f /migrate.sql
 	@echo "Database migrations completed"
 
 logs:

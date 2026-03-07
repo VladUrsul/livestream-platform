@@ -37,9 +37,8 @@ func (d DatabaseConfig) DSN() string {
 
 type RabbitMQConfig struct {
 	URL            string
-	AuthExchange   string
-	StreamExchange string
 	UserExchange   string
+	StreamExchange string
 	QueueName      string
 }
 
@@ -50,7 +49,7 @@ type JWTConfig struct {
 func Load() (*Config, error) {
 	return &Config{
 		Server: ServerConfig{
-			Port:         getEnv("SERVER_PORT", "8082"),
+			Port:         getEnv("SERVER_PORT", "8085"),
 			ReadTimeout:  10 * time.Second,
 			WriteTimeout: 10 * time.Second,
 		},
@@ -59,15 +58,14 @@ func Load() (*Config, error) {
 			Port:     getEnv("DB_PORT", "5432"),
 			User:     mustEnv("DB_USER"),
 			Password: mustEnv("DB_PASSWORD"),
-			Name:     getEnv("DB_NAME", "user_db"),
+			Name:     getEnv("DB_NAME", "notification_db"),
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		},
 		RabbitMQ: RabbitMQConfig{
 			URL:            getEnv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/"),
-			AuthExchange:   getEnv("AUTH_EXCHANGE", "auth.events"),
-			StreamExchange: getEnv("STREAM_EXCHANGE", "stream.events"),
 			UserExchange:   getEnv("USER_EXCHANGE", "user.events"),
-			QueueName:      getEnv("USER_QUEUE_NAME", "user-service.events"),
+			StreamExchange: getEnv("STREAM_EXCHANGE", "stream.events"),
+			QueueName:      getEnv("NOTIFICATION_QUEUE", "notification-service.events"),
 		},
 		JWT: JWTConfig{
 			AccessSecret: mustEnv("JWT_ACCESS_SECRET"),

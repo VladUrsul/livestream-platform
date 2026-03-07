@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { userService } from '../../services/userService';
 import { type SearchResult } from '../../types/user.types';
+import { useNotifications } from '../../hooks/useNotifications';
+import { type Notification } from '../../services/notificationService';
 import styles from './Navbar.module.css';
 
 interface NavbarProps {
@@ -21,6 +23,9 @@ export default function Navbar({ onToggleSidebar, sidebarOpen }: NavbarProps) {
   const [searchOpen,  setSearchOpen]  = useState(false);
   const searchRef   = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { notifications, unreadCount, markAllRead, markRead } = useNotifications();
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -43,6 +48,16 @@ export default function Navbar({ onToggleSidebar, sidebarOpen }: NavbarProps) {
     }, 300);
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [query]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotifOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -133,10 +148,59 @@ export default function Navbar({ onToggleSidebar, sidebarOpen }: NavbarProps) {
           Go Live
         </button>
 
-        <button className={styles.iconBtn} aria-label="Notifications">
-          <span className={styles.notifIcon}>◎</span>
-          <span className={styles.notifBadge}>3</span>
-        </button>
+        <div className={styles.notifMenu} ref={notifRef}>
+          <button
+            className={styles.iconBtn}
+            aria-label="Notifications"
+            onClick={() => setNotifOpen(o => !o)}
+          >
+            <span className={styles.notifIcon}>◎</span>
+            {unreadCount > 0 && (
+              <span className={styles.notifBadge}>
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </button>
+          
+          {notifOpen && (
+            <>
+              <div className={styles.dropdownOverlay} onClick={() => setNotifOpen(false)} />
+              <div className={styles.notifDropdown}>
+                <div className={styles.notifHeader}>
+                  <span className={styles.notifTitle}>Notifications</span>
+                  {unreadCount > 0 && (
+                    <button className={styles.markAllBtn} onClick={() => { markAllRead(); }}>
+                      Mark all read
+                    </button>
+                  )}
+                </div>
+                <div className={styles.notifList}>
+                  {notifications.length === 0 ? (
+                    <p className={styles.notifEmpty}>No notifications yet</p>
+                  ) : (
+                    notifications.slice(0, 15).map(n => (
+                      <button
+                        key={n.id}
+                        className={`${styles.notifItem} ${!n.read ? styles.notifItemUnread : ''}`}
+                        onClick={() => markRead(n.id)}
+                      >
+                        <div className={styles.notifItemDot}>
+                          {!n.read && <span className={styles.unreadDot} />}
+                        </div>
+                        <div className={styles.notifItemText}>
+                          <p className={styles.notifItemBody}>{n.body}</p>
+                          <span className={styles.notifItemTime}>
+                            {formatRelative(n.created_at)}
+                          </span>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
 
         <div className={styles.userMenu}>
           <button className={styles.avatar} onClick={() => setDropdownOpen(o => !o)}>
@@ -169,4 +233,15 @@ export default function Navbar({ onToggleSidebar, sidebarOpen }: NavbarProps) {
       </div>
     </header>
   );
+}
+
+function formatRelative(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins  = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days  = Math.floor(diff / 86400000);
+  if (mins  < 1)  return 'just now';
+  if (mins  < 60) return `${mins}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  return `${days}d ago`;
 }
