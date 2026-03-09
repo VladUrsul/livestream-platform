@@ -161,8 +161,17 @@ func (s *streamService) HandleStreamStart(ctx context.Context, streamKey string)
 
 	if s.pub != nil {
 		_ = s.pub.PublishStreamStarted(ctx, domain.StreamStartedEvent{
-			StreamID: stream.ID, UserID: stream.UserID,
+			EventType: "stream.started",
+			StreamID:  stream.ID, UserID: stream.UserID,
 			Username: stream.Username, Title: stream.Title, StartedAt: now,
+		})
+	}
+
+	if s.pub != nil {
+		s.pub.PublishStreamEnded(ctx, domain.StreamEndedEvent{
+			EventType: "stream.ended",
+			StreamID:  stream.ID, UserID: stream.UserID,
+			Username: stream.Username, EndedAt: now,
 		})
 	}
 	return pipe, nil

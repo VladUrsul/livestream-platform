@@ -30,6 +30,7 @@ type UserService interface {
 	GetFollowing(ctx context.Context, userID uuid.UUID) ([]*domain.SearchResult, error)
 	CreateFromEvent(ctx context.Context, evt domain.UserRegisteredEvent) error
 	SetLiveStatus(ctx context.Context, userID uuid.UUID, isLive bool) error
+	GetFollowerIDs(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error)
 }
 
 type svc struct {
@@ -39,6 +40,10 @@ type svc struct {
 
 func NewUserService(repo repository.UserRepository, pub EventPublisher) UserService {
 	return &svc{repo: repo, pub: pub}
+}
+
+func (s *svc) GetFollowerIDs(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error) {
+	return s.repo.GetFollowerIDs(ctx, userID)
 }
 
 // keep old constructor name working too

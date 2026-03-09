@@ -62,8 +62,17 @@ func main() {
 	log.Println("✓ connected to redis")
 	// RabbitMQ
 	var pub *publisher.StreamPublisher
-	if rabbitConn, err := amqp.Dial(cfg.RabbitMQ.URL); err != nil {
-		log.Printf("⚠ rabbitmq unavailable: %v", err)
+	var rabbitConn *amqp.Connection
+	for i := 0; i < 10; i++ {
+		rabbitConn, err = amqp.Dial(cfg.RabbitMQ.URL)
+		if err == nil {
+			break
+		}
+		log.Printf("⚠ rabbitmq not ready, retrying in 3s... (%d/10)", i+1)
+		time.Sleep(3 * time.Second)
+	}
+	if err != nil {
+		log.Printf("⚠ rabbitmq unavailable — stream events disabled: %v", err)
 	} else {
 		defer rabbitConn.Close()
 		if pub, err = publisher.NewStreamPublisher(rabbitConn, cfg.RabbitMQ.StreamExchange); err != nil {

@@ -33,10 +33,11 @@ type UserFollowedEvent struct {
 }
 
 type StreamStartedEvent struct {
-	StreamID uuid.UUID `json:"stream_id"`
-	UserID   uuid.UUID `json:"user_id"`
-	Username string    `json:"username"`
-	Title    string    `json:"title"`
+	EventType string    `json:"event_type"`
+	StreamID  uuid.UUID `json:"stream_id"`
+	UserID    uuid.UUID `json:"user_id"`
+	Username  string    `json:"username"`
+	Title     string    `json:"title"`
 }
 
 // WSPush is sent over WebSocket to the client

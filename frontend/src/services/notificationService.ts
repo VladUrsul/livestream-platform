@@ -22,6 +22,8 @@ export class NotificationSocket {
   private listeners: Array<(e: NotificationWSEvent) => void> = [];
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private closed = false;
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 5;
 
   constructor(token: string) {
     this.token = token;
@@ -39,8 +41,13 @@ export class NotificationSocket {
       } catch {}
     };
 
-    this.ws.onclose = () => {
-      if (!this.closed) {
+    this.ws.onopen = () => {
+      this.reconnectAttempts = 0; // reset on successful connect
+    };
+
+    this.ws.onclose = (e) => {
+      if (!this.closed && this.reconnectAttempts < this.maxReconnectAttempts) {
+        this.reconnectAttempts++;
         this.reconnectTimer = setTimeout(() => this.connect(), 3000);
       }
     };

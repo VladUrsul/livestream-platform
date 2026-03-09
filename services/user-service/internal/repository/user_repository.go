@@ -26,6 +26,7 @@ type UserRepository interface {
 	IsFollowing(ctx context.Context, followerID, followeeID uuid.UUID) (bool, error)
 	GetFollowing(ctx context.Context, userID uuid.UUID) ([]*domain.SearchResult, error)
 	SetLiveStatus(ctx context.Context, userID uuid.UUID, isLive bool) error
+	GetFollowerIDs(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error)
 }
 
 type postgresRepo struct{ db *pgxpool.Pool }
@@ -42,6 +43,29 @@ func (r *postgresRepo) CreateProfile(ctx context.Context, p *domain.Profile) err
 		p.UserID, p.Username, p.Email, p.DisplayName, p.Bio, p.AvatarURL, p.CreatedAt, p.UpdatedAt,
 	)
 	return err
+}
+
+// GetFollowerIDs returns a list of user IDs that follow the given user ID.
+func (r *postgresRepo) GetFollowerIDs(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := r.db.Query(ctx,
+		`SELECT follower_id FROM follows WHERE followee_id = $1`, userID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var ids []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	if ids == nil {
+		return []uuid.UUID{}, nil
+	}
+	return ids, nil
 }
 
 func (r *postgresRepo) GetByUserID(ctx context.Context, userID uuid.UUID) (*domain.Profile, error) {
