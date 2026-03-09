@@ -7,10 +7,11 @@ import (
 )
 
 type Config struct {
-	Server   ServerConfig
-	Database DatabaseConfig
-	RabbitMQ RabbitMQConfig
-	JWT      JWTConfig
+	Server         ServerConfig
+	Database       DatabaseConfig
+	RabbitMQ       RabbitMQConfig
+	JWT            JWTConfig
+	UserServiceURL string
 }
 
 type ServerConfig struct {
@@ -70,6 +71,7 @@ func Load() (*Config, error) {
 		JWT: JWTConfig{
 			AccessSecret: mustEnv("JWT_ACCESS_SECRET"),
 		},
+		UserServiceURL: getEnv("USER_SERVICE_URL", "http://user-service:8082"),
 	}, nil
 }
 

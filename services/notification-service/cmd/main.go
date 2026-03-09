@@ -66,6 +66,7 @@ func main() {
 	notifHub := hub.New()
 	cons := consumer.New(
 		rabbitConn, repo, notifHub,
+		cfg.UserServiceURL,
 		cfg.RabbitMQ.UserExchange,
 		cfg.RabbitMQ.StreamExchange,
 		cfg.RabbitMQ.QueueName,

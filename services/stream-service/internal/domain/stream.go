@@ -72,6 +72,7 @@ func (s *Stream) ToPublic(hlsBaseURL string) StreamPublicInfo {
 }
 
 type StreamStartedEvent struct {
+	EventType string    `json:"event_type"`
 	StreamID  uuid.UUID `json:"stream_id"`
 	UserID    uuid.UUID `json:"user_id"`
 	Username  string    `json:"username"`
@@ -80,8 +81,9 @@ type StreamStartedEvent struct {
 }
 
 type StreamEndedEvent struct {
-	StreamID uuid.UUID `json:"stream_id"`
-	UserID   uuid.UUID `json:"user_id"`
-	Username string    `json:"username"`
-	EndedAt  time.Time `json:"ended_at"`
+	EventType string    `json:"event_type"`
+	StreamID  uuid.UUID `json:"stream_id"`
+	UserID    uuid.UUID `json:"user_id"`
+	Username  string    `json:"username"`
+	EndedAt   time.Time `json:"ended_at"`
 }

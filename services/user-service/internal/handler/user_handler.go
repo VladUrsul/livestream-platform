@@ -7,6 +7,7 @@ import (
 	"github.com/VladUrsul/livestream-platform/services/user-service/internal/domain"
 	"github.com/VladUrsul/livestream-platform/services/user-service/internal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type Handler struct{ svc service.UserService }
@@ -16,6 +17,7 @@ func New(svc service.UserService) *Handler { return &Handler{svc} }
 func (h *Handler) Register(api *gin.RouterGroup, jwtSecret string) {
 	// Public
 	api.GET("/search", h.Search)
+	api.GET("/internal/:userID/follower-ids", h.GetFollowerIDs)
 	api.GET("/:username", h.GetProfile)
 
 	// Authenticated
@@ -38,6 +40,20 @@ func (h *Handler) Search(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"users": results})
+}
+
+func (h *Handler) GetFollowerIDs(c *gin.Context) {
+	userID, err := uuid.Parse(c.Param("userID"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
+		return
+	}
+	ids, err := h.svc.GetFollowerIDs(c.Request.Context(), userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"follower_ids": ids})
 }
 
 // GET /api/v1/users/:username/follow

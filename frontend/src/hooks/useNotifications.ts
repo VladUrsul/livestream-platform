@@ -13,9 +13,21 @@ export const useNotifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount,   setUnreadCount]   = useState(0);
 
-  // Connect WebSocket when authenticated
   useEffect(() => {
-    if (!isAuthenticated || !accessToken) return;
+    if (!isAuthenticated || !accessToken) {
+      // Clean up if logged out
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+      return;
+    }
+
+    // Disconnect previous socket (e.g. token rotated)
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+      socketRef.current = null;
+    }
 
     const socket = new NotificationSocket(accessToken);
     socketRef.current = socket;
@@ -31,7 +43,6 @@ export const useNotifications = () => {
 
     socket.connect();
 
-    // Load initial notifications
     notificationApi.getAll().then(data => {
       setNotifications(data.notifications ?? []);
       setUnreadCount(data.unread_count);
@@ -40,8 +51,9 @@ export const useNotifications = () => {
     return () => {
       unsub();
       socket.disconnect();
+      socketRef.current = null;
     };
-  }, [isAuthenticated, accessToken]);
+  }, [isAuthenticated, accessToken]); // ← re-runs when token refreshes
 
   const markAllRead = async () => {
     await notificationApi.markAllRead();
