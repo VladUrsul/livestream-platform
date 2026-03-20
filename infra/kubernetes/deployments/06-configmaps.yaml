@@ -48,6 +48,10 @@ data:
   REDIS_HOST: "redis-service"
   REDIS_PORT: "6379"
   JWT_ACCESS_EXPIRY_MINS: "15"
+  # Public URL used by the frontend to load HLS manifests/segments.
+  # Must NOT point to localhost when running inside Kubernetes.
+  HLS_OUTPUT_DIR: "/tmp/hls"
+  HLS_BASE_URL: "https://livestream.example.com/hls"
 
 ---
 # ConfigMap for Chat Service

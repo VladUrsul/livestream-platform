@@ -28,6 +28,13 @@ spec:
   - host: livestream.example.com
     http:
       paths:
+      - path: /hls
+        pathType: Prefix
+        backend:
+          service:
+            name: stream-service
+            port:
+              number: 8083
       - path: /
         pathType: Prefix
         backend:

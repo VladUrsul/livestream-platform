@@ -99,6 +99,15 @@ func (s *streamService) GetStreamInfo(ctx context.Context, username string) (*do
 		}
 		return nil, fmt.Errorf("get stream info: %w", err)
 	}
+	// Reconcile stale "live" state:
+	// if DB says live but transcoder isn't running in this pod, mark as ended.
+	if stream.Status == domain.StreamStatusLive && !s.transcoder.IsRunning(stream.Username) {
+		now := time.Now()
+		stream.Status = domain.StreamStatusEnded
+		stream.EndedAt = &now
+		_ = s.streamCache.SetOffline(ctx, stream.Username)
+		_ = s.repo.UpdateStream(ctx, stream) // best-effort
+	}
 	count, _ := s.streamCache.GetViewerCount(ctx, username)
 	stream.ViewerCount = count
 	info := stream.ToPublic(s.hlsBaseURL)
@@ -112,6 +121,15 @@ func (s *streamService) GetLiveStreams(ctx context.Context) ([]*domain.StreamPub
 	}
 	var result []*domain.StreamPublicInfo
 	for _, stream := range streams {
+		// Skip/purge stale live entries
+		if stream.Status == domain.StreamStatusLive && !s.transcoder.IsRunning(stream.Username) {
+			now := time.Now()
+			stream.Status = domain.StreamStatusEnded
+			stream.EndedAt = &now
+			_ = s.streamCache.SetOffline(ctx, stream.Username)
+			_ = s.repo.UpdateStream(ctx, stream) // best-effort
+			continue
+		}
 		count, _ := s.streamCache.GetViewerCount(ctx, stream.Username)
 		stream.ViewerCount = count
 		info := stream.ToPublic(s.hlsBaseURL)
@@ -139,24 +157,29 @@ func (s *streamService) HandleStreamStart(ctx context.Context, streamKey string)
 	if err != nil {
 		return nil, fmt.Errorf("get stream: %w", err)
 	}
-	if stream.Status == domain.StreamStatusLive {
+	// Prevent duplicate transcoding when DB is already live and the transcoder is running.
+	if stream.Status == domain.StreamStatusLive && s.transcoder.IsRunning(stream.Username) {
 		return nil, ErrAlreadyLive
 	}
+
+	// Start ffmpeg first. Only mark the stream as live in DB/cache after the transcoder is actually running.
+	pipe, err := s.transcoder.Start(stream.Username)
+	if err != nil {
+		return nil, fmt.Errorf("start transcoder: %w", err)
+	}
+
 	now := time.Now()
 	stream.Status = domain.StreamStatusLive
 	stream.StartedAt = &now
 	stream.EndedAt = nil
 	if err := s.repo.UpdateStream(ctx, stream); err != nil {
+		// Best-effort cleanup so we don't keep a running ffmpeg without DB "live".
+		s.transcoder.Stop(stream.Username)
 		return nil, fmt.Errorf("update stream: %w", err)
 	}
 	if err := s.streamCache.SetLive(ctx, stream.Username, stream.ID.String()); err != nil {
+		s.transcoder.Stop(stream.Username)
 		return nil, fmt.Errorf("set live cache: %w", err)
-	}
-
-	// Start ffmpeg and get the pipe to write FLV data into
-	pipe, err := s.transcoder.Start(stream.Username)
-	if err != nil {
-		return nil, fmt.Errorf("start transcoder: %w", err)
 	}
 
 	if s.pub != nil {

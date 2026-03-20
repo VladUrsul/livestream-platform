@@ -66,8 +66,12 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: stream-service
-  minReplicas: 2
-  maxReplicas: 10
+  # HLS output is written to a local filesystem path (/tmp/hls).
+  # Without a shared volume, running multiple replicas causes
+  # manifests/segments to be generated in one pod while requests hit another.
+  # Keep to 1 replica until a shared HLS storage is implemented.
+  minReplicas: 1
+  maxReplicas: 1
   metrics:
   - type: Resource
     resource:

@@ -9,7 +9,7 @@ metadata:
     app: auth-service
     version: v1
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -236,7 +236,7 @@ metadata:
     app: stream-service
     version: v1
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
