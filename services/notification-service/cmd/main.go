@@ -11,6 +11,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -44,6 +47,28 @@ func main() {
 		log.Fatalf("db ping: %v", err)
 	}
 	log.Println("✓ notification_db connected")
+
+	// ── Database Migrations ───────────────────────────────────────────────────
+	m, err := migrate.New("file://../migrations", fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		cfg.Database.User,
+		cfg.Database.Password,
+		cfg.Database.Host,
+		cfg.Database.Port,
+		cfg.Database.Name,
+		cfg.Database.SSLMode,
+	))
+	if err == nil {
+		defer m.Close()
+		if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+			log.Printf("⚠ migration error: %v", err)
+		} else if err == migrate.ErrNoChange {
+			log.Println("✓ migrations already applied")
+		} else {
+			log.Println("✓ migrations applied")
+		}
+	} else {
+		log.Printf("⚠ migration setup failed: %v (continuing anyway)", err)
+	}
 
 	// ── RabbitMQ ──────────────────────────────────────────────────────
 	var rabbitConn *amqp.Connection

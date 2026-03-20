@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/VladUrsul/livestream-platform/services/auth-service/internal/domain"
@@ -47,14 +48,20 @@ func (h *AuthHandler) Register(c *gin.Context) {
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
+	fmt.Printf("[HANDLER] Login called, method: %s, path: %s\n", c.Request.Method, c.Request.URL.Path)
+
 	var input domain.LoginInput
 	if err := c.ShouldBindJSON(&input); err != nil {
+		fmt.Printf("[HANDLER] ShouldBindJSON error: %v\n", err)
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "validation failed", Details: err.Error()})
 		return
 	}
+	fmt.Printf("[HANDLER] Parsed input: email=%s, password=%s\n", input.Email, input.Password)
 
 	resp, err := h.authService.Login(c.Request.Context(), input)
 	if err != nil {
+		// Log the actual error for debugging
+		fmt.Printf("[AUTH] Login error: %v\n", err)
 		h.handleServiceError(c, err)
 		return
 	}

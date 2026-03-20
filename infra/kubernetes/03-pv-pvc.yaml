@@ -1,0 +1,224 @@
+---
+# PersistentVolumes for databases
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: auth-db-pv
+  namespace: livestream
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: livestream-storage
+  hostPath:
+    path: /mnt/livestream/auth-db
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: user-db-pv
+  namespace: livestream
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: livestream-storage
+  hostPath:
+    path: /mnt/livestream/user-db
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: stream-db-pv
+  namespace: livestream
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: livestream-storage
+  hostPath:
+    path: /mnt/livestream/stream-db
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: chat-db-pv
+  namespace: livestream
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: livestream-storage
+  hostPath:
+    path: /mnt/livestream/chat-db
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: notification-db-pv
+  namespace: livestream
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: livestream-storage
+  hostPath:
+    path: /mnt/livestream/notification-db
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: redis-pv
+  namespace: livestream
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: livestream-storage
+  hostPath:
+    path: /mnt/livestream/redis
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rabbitmq-pv
+  namespace: livestream
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: livestream-storage
+  hostPath:
+    path: /mnt/livestream/rabbitmq
+    type: DirectoryOrCreate
+
+---
+# PersistentVolumeClaims for Auth Database
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: auth-db-pvc
+  namespace: livestream
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: livestream-storage
+  resources:
+    requests:
+      storage: 10Gi
+  volumeName: auth-db-pv
+
+---
+# PersistentVolumeClaim for User Database
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: user-db-pvc
+  namespace: livestream
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: livestream-storage
+  resources:
+    requests:
+      storage: 10Gi
+  volumeName: user-db-pv
+
+---
+# PersistentVolumeClaim for Stream Database
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: stream-db-pvc
+  namespace: livestream
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: livestream-storage
+  resources:
+    requests:
+      storage: 10Gi
+  volumeName: stream-db-pv
+
+---
+# PersistentVolumeClaim for Chat Database
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: chat-db-pvc
+  namespace: livestream
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: livestream-storage
+  resources:
+    requests:
+      storage: 10Gi
+  volumeName: chat-db-pv
+
+---
+# PersistentVolumeClaim for Notification Database
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: notification-db-pvc
+  namespace: livestream
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: livestream-storage
+  resources:
+    requests:
+      storage: 10Gi
+  volumeName: notification-db-pv
+
+---
+# PersistentVolumeClaim for Redis
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: livestream
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: livestream-storage
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: redis-pv
+
+---
+# PersistentVolumeClaim for RabbitMQ
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rabbitmq-pvc
+  namespace: livestream
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: livestream-storage
+  resources:
+    requests:
+      storage: 10Gi
+  volumeName: rabbitmq-pv

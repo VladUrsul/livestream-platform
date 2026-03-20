@@ -11,7 +11,16 @@ import (
 
 func New(cfg *config.Config) (*gin.Engine, error) {
 	r := gin.New()
-	r.Use(middleware.Logger())
+
+	// Middleware: logger (skip for mutations to avoid body issues)
+	r.Use(func(c *gin.Context) {
+		if c.Request.Method != "POST" && c.Request.Method != "PUT" && c.Request.Method != "PATCH" && c.Request.Method != "DELETE" {
+			middleware.Logger()(c)
+		} else {
+			c.Next()
+		}
+	})
+
 	r.Use(middleware.CORS(cfg.CORS.AllowedOrigins))
 	r.Use(gin.Recovery())
 

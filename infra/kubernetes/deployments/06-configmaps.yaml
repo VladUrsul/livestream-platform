@@ -1,0 +1,97 @@
+---
+# ConfigMap for Auth Service
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-service-config
+  namespace: livestream
+data:
+  SERVER_PORT: "8081"
+  DB_HOST: "auth-db-service"
+  DB_PORT: "5432"
+  DB_SSLMODE: "disable"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  JWT_ACCESS_EXPIRY_MINS: "15"
+  JWT_REFRESH_EXPIRY_DAYS: "7"
+  AUTH_EXCHANGE: "auth.events"
+
+---
+# ConfigMap for User Service
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-service-config
+  namespace: livestream
+data:
+  SERVER_PORT: "8082"
+  DB_HOST: "user-db-service"
+  DB_PORT: "5432"
+  DB_SSLMODE: "disable"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  JWT_ACCESS_EXPIRY_MINS: "15"
+
+---
+# ConfigMap for Stream Service
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stream-service-config
+  namespace: livestream
+data:
+  SERVER_PORT: "8083"
+  RTMP_PORT: "1935"
+  DB_HOST: "stream-db-service"
+  DB_PORT: "5432"
+  DB_SSLMODE: "disable"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  JWT_ACCESS_EXPIRY_MINS: "15"
+
+---
+# ConfigMap for Chat Service
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chat-service-config
+  namespace: livestream
+data:
+  SERVER_PORT: "8084"
+  DB_HOST: "chat-db-service"
+  DB_PORT: "5432"
+  DB_SSLMODE: "disable"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  JWT_ACCESS_EXPIRY_MINS: "15"
+
+---
+# ConfigMap for Notification Service
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notification-service-config
+  namespace: livestream
+data:
+  SERVER_PORT: "8085"
+  DB_HOST: "notification-db-service"
+  DB_PORT: "5432"
+  DB_SSLMODE: "disable"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+
+---
+# ConfigMap for API Gateway
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-config
+  namespace: livestream
+data:
+  SERVER_PORT: "8080"
+  AUTH_SERVICE_URL: "http://auth-service:8081"
+  USER_SERVICE_URL: "http://user-service:8082"
+  STREAM_SERVICE_URL: "http://stream-service:8083"
+  CHAT_SERVICE_URL: "http://chat-service:8084"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:8085"
+  CORS_ORIGIN: "http://localhost:3000"

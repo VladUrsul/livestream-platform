@@ -1,0 +1,575 @@
+---
+# Auth Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: livestream
+  labels:
+    app: auth-service
+    version: v1
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+        version: v1
+    spec:
+      serviceAccountName: app-service-account
+      containers:
+      - name: auth-service
+        image: livestream-platform-auth-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8081
+          name: http
+        envFrom:
+        - configMapRef:
+            name: auth-service-config
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: auth-db-secret
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: auth-db-secret
+              key: password
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: auth-db-secret
+              key: database
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: password
+        - name: JWT_ACCESS_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: access-secret
+        - name: JWT_REFRESH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: refresh-secret
+        - name: RABBITMQ_URL
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: url
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8081
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8081
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+
+---
+# Auth Service Internal Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: livestream
+  labels:
+    app: auth-service
+spec:
+  type: ClusterIP
+  selector:
+    app: auth-service
+  ports:
+  - port: 8081
+    targetPort: 8081
+    protocol: TCP
+    name: http
+
+---
+# User Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: livestream
+  labels:
+    app: user-service
+    version: v1
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+        version: v1
+    spec:
+      serviceAccountName: app-service-account
+      containers:
+      - name: user-service
+        image: livestream-platform-user-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8082
+          name: http
+        envFrom:
+        - configMapRef:
+            name: user-service-config
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: user-db-secret
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: user-db-secret
+              key: password
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: user-db-secret
+              key: database
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: password
+        - name: JWT_ACCESS_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: access-secret
+        - name: RABBITMQ_URL
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: url
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8082
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8082
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+
+---
+# User Service Internal Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: livestream
+  labels:
+    app: user-service
+spec:
+  type: ClusterIP
+  selector:
+    app: user-service
+  ports:
+  - port: 8082
+    targetPort: 8082
+    protocol: TCP
+    name: http
+
+---
+# Stream Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stream-service
+  namespace: livestream
+  labels:
+    app: stream-service
+    version: v1
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: stream-service
+  template:
+    metadata:
+      labels:
+        app: stream-service
+        version: v1
+    spec:
+      serviceAccountName: app-service-account
+      containers:
+      - name: stream-service
+        image: livestream-platform-stream-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8083
+          name: http
+        - containerPort: 1935
+          name: rtmp
+        envFrom:
+        - configMapRef:
+            name: stream-service-config
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: stream-db-secret
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: stream-db-secret
+              key: password
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: stream-db-secret
+              key: database
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: password
+        - name: JWT_ACCESS_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: access-secret
+        - name: RABBITMQ_URL
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: url
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8083
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8083
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+
+---
+# Stream Service HTTP Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: stream-service
+  namespace: livestream
+  labels:
+    app: stream-service
+spec:
+  type: ClusterIP
+  selector:
+    app: stream-service
+  ports:
+  - port: 8083
+    targetPort: 8083
+    protocol: TCP
+    name: http
+
+---
+# Stream Service RTMP Service (LoadBalancer for external RTMP)
+apiVersion: v1
+kind: Service
+metadata:
+  name: stream-service-rtmp
+  namespace: livestream
+  labels:
+    app: stream-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: stream-service
+  ports:
+  - port: 1935
+    targetPort: 1935
+    protocol: TCP
+    name: rtmp
+
+---
+# Chat Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-service
+  namespace: livestream
+  labels:
+    app: chat-service
+    version: v1
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: chat-service
+  template:
+    metadata:
+      labels:
+        app: chat-service
+        version: v1
+    spec:
+      serviceAccountName: app-service-account
+      containers:
+      - name: chat-service
+        image: livestream-platform-chat-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8084
+          name: http
+        envFrom:
+        - configMapRef:
+            name: chat-service-config
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: chat-db-secret
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: chat-db-secret
+              key: password
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: chat-db-secret
+              key: database
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: password
+        - name: JWT_ACCESS_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: access-secret
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8084
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8084
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+
+---
+# Chat Service Internal Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-service
+  namespace: livestream
+  labels:
+    app: chat-service
+spec:
+  type: ClusterIP
+  selector:
+    app: chat-service
+  ports:
+  - port: 8084
+    targetPort: 8084
+    protocol: TCP
+    name: http
+
+---
+# Notification Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: livestream
+  labels:
+    app: notification-service
+    version: v1
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+        version: v1
+    spec:
+      serviceAccountName: app-service-account
+      containers:
+      - name: notification-service
+        image: livestream-platform-notification-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8085
+          name: http
+        envFrom:
+        - configMapRef:
+            name: notification-service-config
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: notification-db-secret
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: notification-db-secret
+              key: password
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: notification-db-secret
+              key: database
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: password
+        - name: RABBITMQ_URL
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: url
+        - name: JWT_ACCESS_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: access-secret
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8085
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8085
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+
+---
+# Notification Service Internal Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: livestream
+  labels:
+    app: notification-service
+spec:
+  type: ClusterIP
+  selector:
+    app: notification-service
+  ports:
+  - port: 8085
+    targetPort: 8085
+    protocol: TCP
+    name: http
