@@ -17,13 +17,13 @@ const categories = [
 ];
 
 const categoryColors: Record<string, string> = {
-  Programming: '#3b82f6',
-  Art:         '#a855f7',
-  Music:       '#ec4899',
-  DevOps:      '#22c55e',
-  GameDev:     '#f97316',
-  Design:      '#e8ff47',
-  General:     '#6b7280',
+  Programming: '#2196f3',
+  Art:         '#a78bfa',
+  Music:       '#38bdf8',
+  DevOps:      '#34d399',
+  GameDev:     '#fb923c',
+  Design:      '#00b4d8',
+  General:     '#64748b',
 };
 
 export default function Dashboard() {
@@ -149,7 +149,7 @@ export default function Dashboard() {
                   <div
                     className={styles.thumbnailBg}
                     style={{
-                      background: `linear-gradient(135deg, ${categoryColors[stream.category] ?? '#374151'}22, #111)`,
+                      background: `linear-gradient(135deg, ${categoryColors[stream.category] ?? '#1e3a5f'}33, #060b17)`,
                     }}
                   />
                   <div className={styles.thumbnailOverlay}>
@@ -176,8 +176,9 @@ export default function Dashboard() {
                     <span
                       className={styles.streamCardCategory}
                       style={{
-                        borderColor: `${categoryColors[stream.category] ?? '#374151'}44`,
-                        color: categoryColors[stream.category] ?? '#6b7280',
+                        borderColor: `${categoryColors[stream.category] ?? '#1e3a5f'}55`,
+                        color: categoryColors[stream.category] ?? '#64748b',
+                        background: `${categoryColors[stream.category] ?? '#1e3a5f'}0f`,
                       }}
                     >
                       {stream.category}

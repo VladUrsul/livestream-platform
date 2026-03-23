@@ -1,65 +1,72 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 .navbar {
   position: fixed;
   top: 0; left: 0; right: 0;
-  height: 56px;
-  background: rgba(10, 10, 10, 0.95);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid #1a1a1a;
+  height: 52px;
+  background: rgba(6, 11, 23, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 14px;
   z-index: 100;
-  font-family: 'Syne', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 /* ── Left ──────────────────────────────────────────────────────── */
 .left {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-width: 220px;
+  gap: 10px;
+  min-width: 210px;
 }
 
 .menuBtn {
-  width: 36px; height: 36px;
+  width: 34px; height: 34px;
   background: transparent; border: none;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  border-radius: 6px;
+  border-radius: 8px;
   transition: background 0.15s;
   flex-shrink: 0;
 }
-.menuBtn:hover { background: #111; }
+.menuBtn:hover { background: rgba(255,255,255,0.06); }
 
 .menuIcon {
-  display: flex; flex-direction: column; gap: 4px; width: 18px;
+  display: flex; flex-direction: column; gap: 4px; width: 16px;
 }
 .menuIcon span {
   display: block; height: 1.5px;
-  background: #6b7280; border-radius: 2px;
-  transition: all 0.2s ease; transform-origin: center;
+  background: rgba(255,255,255,0.4);
+  border-radius: 2px;
+  transition: all 0.2s ease;
+  transform-origin: center;
 }
-.menuIconOpen span:nth-child(1) { transform: translateY(5.5px) rotate(45deg);  background: #e8ff47; }
+.menuIconOpen span:nth-child(1) { transform: translateY(5.5px) rotate(45deg);  background: #2196f3; }
 .menuIconOpen span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-.menuIconOpen span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); background: #e8ff47; }
+.menuIconOpen span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); background: #2196f3; }
 
 .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
-.logoSymbol { font-size: 20px; color: #e8ff47; }
+
+.logoSymbol { font-size: 18px; color: #2196f3; }
+
 .logoText {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 13px; font-weight: 500;
-  letter-spacing: 0.25em; color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  color: #e8edf5;
 }
 
 /* ── Center ────────────────────────────────────────────────────── */
 .center {
-  position: relative;   
+  position: relative;
   flex: 1;
-  max-width: 360px;     
-  margin: 0 24px;
+  max-width: 340px;
+  margin: 0 20px;
 }
 
 .searchWrapper {
@@ -69,172 +76,215 @@
 }
 
 .searchIcon {
-  position: absolute; left: 12px;
-  color: #4b5563; font-size: 16px;
+  position: absolute; left: 11px;
+  color: rgba(255,255,255,0.2);
+  font-size: 15px;
   pointer-events: none;
 }
 
 .searchInput {
   width: 100%;
-  padding: 7px 40px 7px 36px;
-  background: #111;
-  border: 1px solid #1f2937;
+  padding: 6px 40px 6px 34px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 8px;
-  color: #f9fafb;
+  color: #e8edf5;
   font-size: 13px;
-  font-family: 'Syne', sans-serif;
+  font-family: 'Inter', sans-serif;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
-.searchInput::placeholder { color: #374151; }
+.searchInput::placeholder { color: rgba(255,255,255,0.2); }
 .searchInput:focus {
-  border-color: #2d3748;
-  box-shadow: 0 0 0 3px rgba(232, 255, 71, 0.05);
+  border-color: rgba(33,150,243,0.4);
+  background: rgba(33,150,243,0.05);
+  box-shadow: 0 0 0 3px rgba(33,150,243,0.08);
 }
 
 .searchShortcut {
-  position: absolute; right: 10px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px; color: #374151;
-  background: #1a1a1a;
-  padding: 2px 5px; border-radius: 4px;
-  border: 1px solid #262626;
+  position: absolute; right: 9px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.05);
+  padding: 2px 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.07);
   pointer-events: none;
 }
 
+.searchSpinner {
+  position: absolute; right: 10px;
+  width: 12px; height: 12px;
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-top-color: #2196f3;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
 /* ── Right ─────────────────────────────────────────────────────── */
 .right {
-  display: flex; align-items: center; gap: 8px;
-  min-width: 220px; justify-content: flex-end;
+  display: flex; align-items: center; gap: 6px;
+  min-width: 210px; justify-content: flex-end;
 }
 
 .goLiveBtn {
-  display: flex; align-items: center; gap: 7px;
-  padding: 7px 16px;
-  background: #e8ff47; color: #0a0a0a;
-  border: none; border-radius: 7px;
-  font-size: 13px; font-weight: 700;
-  font-family: 'Syne', sans-serif;
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px;
+  background: rgba(33,150,243,0.15);
+  color: #60b8ff;
+  border: 1px solid rgba(33,150,243,0.3);
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
 }
-.goLiveBtn:hover  { background: #f0ff6e; }
+.goLiveBtn:hover  {
+  background: rgba(33,150,243,0.22);
+  border-color: rgba(33,150,243,0.5);
+}
 .goLiveBtn:active { transform: scale(0.98); }
 
 .liveDot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: #0a0a0a;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #ef4444;
   animation: livePulse 1.5s infinite;
 }
 @keyframes livePulse {
-  0%   { box-shadow: 0 0 0 0 rgba(10,10,10,0.6); }
-  70%  { box-shadow: 0 0 0 5px rgba(10,10,10,0); }
-  100% { box-shadow: 0 0 0 0 rgba(10,10,10,0); }
+  0%   { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); }
+  70%  { box-shadow: 0 0 0 5px rgba(239,68,68,0); }
+  100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
 }
 
 .iconBtn {
   position: relative;
-  width: 36px; height: 36px;
+  width: 34px; height: 34px;
   background: transparent; border: none;
-  cursor: pointer; border-radius: 6px;
+  cursor: pointer; border-radius: 8px;
   transition: background 0.15s;
   display: flex; align-items: center; justify-content: center;
 }
-.iconBtn:hover { background: #111; }
+.iconBtn:hover { background: rgba(255,255,255,0.06); }
 
-.notifIcon { font-size: 16px; color: #6b7280; }
+.notifIcon { font-size: 15px; color: rgba(255,255,255,0.35); }
 
 .notifBadge {
   position: absolute; top: 4px; right: 4px;
-  width: 14px; height: 14px;
-  background: #e8ff47; color: #0a0a0a;
-  border-radius: 50%;
-  font-size: 9px; font-weight: 700;
-  font-family: 'IBM Plex Mono', monospace;
+  min-width: 14px; height: 14px;
+  background: #2196f3;
+  color: #fff;
+  border-radius: 7px;
+  font-size: 8px; font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
   display: flex; align-items: center; justify-content: center;
+  padding: 0 3px;
 }
 
-/* ── User menu ─────────────────────────────────────────────────── */
+/* ── User Avatar ─────────────────────────────────────────────── */
 .userMenu { position: relative; }
 
 .avatar {
-  width: 34px; height: 34px; border-radius: 8px;
-  background: linear-gradient(135deg, #e8ff47 0%, #b8cc00 100%);
-  border: none; cursor: pointer;
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, rgba(33,150,243,0.6), rgba(0,180,216,0.5));
+  border: 1px solid rgba(33,150,243,0.3);
+  cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: transform 0.1s, box-shadow 0.15s;
 }
-.avatar:hover { transform: scale(1.05); box-shadow: 0 0 0 2px rgba(232,255,71,0.3); }
-
-.avatarText {
-  font-size: 13px; font-weight: 800;
-  color: #0a0a0a; font-family: 'Syne', sans-serif;
+.avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 2px rgba(33,150,243,0.25);
 }
 
+.avatarText {
+  font-size: 12px; font-weight: 700;
+  color: #fff; font-family: 'Inter', sans-serif;
+}
+
+/* ── Dropdowns ───────────────────────────────────────────────── */
 .dropdownOverlay { position: fixed; inset: 0; z-index: 99; }
 
 .dropdown {
   position: absolute;
   top: calc(100% + 8px); right: 0;
-  width: 220px;
-  background: #111;
-  border: 1px solid #1f2937;
+  width: 210px;
+  background: rgba(10, 16, 32, 0.97);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(33,150,243,0.06);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   z-index: 100; overflow: hidden;
   animation: dropIn 0.15s ease;
 }
+
 @keyframes dropIn {
-  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0)    scale(1); }
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .dropdownHeader {
-  padding: 14px 16px;
+  padding: 12px 14px;
   display: flex; flex-direction: column; gap: 2px;
 }
-.dropdownUsername { font-size: 14px; font-weight: 700; color: #f9fafb; }
-.dropdownEmail    { font-size: 12px; color: #4b5563; font-family: 'IBM Plex Mono', monospace; }
+.dropdownUsername {
+  font-size: 13px; font-weight: 600; color: #e8edf5;
+}
+.dropdownEmail {
+  font-size: 11px; color: rgba(255,255,255,0.25);
+  font-family: 'JetBrains Mono', monospace;
+}
 
-.dropdownDivider { height: 1px; background: #1f2937; }
+.dropdownDivider { height: 1px; background: rgba(255,255,255,0.06); }
 
 .dropdownItem {
   display: block;
   width: 100%;
-  padding: 10px 16px;
+  padding: 9px 14px;
   background: transparent; border: none;
   text-align: left; text-decoration: none;
-  font-size: 13px; font-weight: 600;
-  font-family: 'Syne', sans-serif;
-  color: #6b7280;
+  font-size: 13px; font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  color: rgba(255,255,255,0.45);
   cursor: pointer;
   transition: background 0.1s, color 0.1s;
 }
-.dropdownItem:hover { background: #1a1a1a; color: #d1d5db; }
+.dropdownItem:hover {
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.8);
+}
 
 .dropdownItemDanger {
   display: block;
   width: 100%;
-  padding: 10px 16px;
+  padding: 9px 14px;
   background: transparent; border: none;
   text-align: left;
-  font-size: 13px; font-weight: 600;
-  font-family: 'Syne', sans-serif;
-  color: #6b7280;
+  font-size: 13px; font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  color: rgba(255,255,255,0.35);
   cursor: pointer;
   transition: background 0.1s, color 0.1s;
 }
-.dropdownItemDanger:hover { background: rgba(239,68,68,0.08); color: #f87171; }
+.dropdownItemDanger:hover {
+  background: rgba(239,68,68,0.08);
+  color: #f87171;
+}
 
-/* ── Search dropdown ───────────────────────────────────────────── */
+/* ── Search Dropdown ─────────────────────────────────────────── */
 .searchDropdown {
   position: absolute;
   top: calc(100% + 8px);
-  left: 0; right: 0;   
-  background: #111;
-  border: 1px solid #1f2937;
+  left: 0; right: 0;
+  background: rgba(10, 16, 32, 0.97);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   z-index: 200;
   overflow: hidden;
   animation: dropIn 0.15s ease;
@@ -242,81 +292,77 @@
 
 .searchEmpty {
   padding: 16px;
-  font-size: 13px; color: #4b5563;
-  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: rgba(255,255,255,0.2);
+  font-family: 'JetBrains Mono', monospace;
   text-align: center;
 }
 
 .searchResult {
   display: flex; align-items: center; gap: 10px;
-  width: 100%; padding: 10px 14px;
+  width: 100%; padding: 9px 12px;
   background: transparent; border: none;
   cursor: pointer; text-align: left;
   transition: background 0.1s;
 }
-.searchResult:hover { background: #1a1a1a; }
+.searchResult:hover { background: rgba(255,255,255,0.05); }
 
 .searchAvatar {
   position: relative;
-  width: 34px; height: 34px; border-radius: 8px;
-  background: linear-gradient(135deg, #1f2937, #111827);
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, rgba(33,150,243,0.2), rgba(0,180,216,0.1));
+  border: 1px solid rgba(33,150,243,0.2);
   display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 800; color: #9ca3af;
-  font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 700; color: #2196f3;
+  font-family: 'Inter', sans-serif;
   flex-shrink: 0; overflow: hidden;
 }
 .searchAvatar img { width: 100%; height: 100%; object-fit: cover; }
 
 .searchLiveDot {
   position: absolute; bottom: -2px; right: -2px;
-  width: 9px; height: 9px; border-radius: 50%;
-  background: #ef4444; border: 2px solid #111;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #ef4444;
+  border: 2px solid rgba(10,16,32,1);
 }
 
 .searchResultText {
   flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0;
 }
 .searchUsername {
-  font-size: 13px; font-weight: 700;
-  color: #d1d5db; font-family: 'Syne', sans-serif;
+  font-size: 13px; font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  font-family: 'Inter', sans-serif;
 }
 .searchDisplayName {
-  font-size: 12px; color: #6b7280;
-  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  font-family: 'JetBrains Mono', monospace;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .searchLiveBadge {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 9px; font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 600;
   color: #ef4444;
   background: rgba(239,68,68,0.1);
-  border: 1px solid rgba(239,68,68,0.3);
+  border: 1px solid rgba(239,68,68,0.25);
   padding: 2px 6px; border-radius: 4px;
   letter-spacing: 0.08em; flex-shrink: 0;
 }
 
-.searchSpinner {
-  position: absolute; right: 10px;
-  width: 12px; height: 12px;
-  border: 2px solid rgba(255,255,255,0.1);
-  border-top-color: #6b7280;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ── Notification menu ─────────────────────────────────────────── */
+/* ── Notifications ───────────────────────────────────────────── */
 .notifMenu { position: relative; }
 
 .notifDropdown {
   position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  width: 320px;
-  background: #111;
-  border: 1px solid #1f2937;
+  top: calc(100% + 8px); right: 0;
+  width: 300px;
+  background: rgba(10, 16, 32, 0.97);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   z-index: 100;
   overflow: hidden;
   animation: dropIn 0.15s ease;
@@ -326,40 +372,39 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
-  border-bottom: 1px solid #1f2937;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
 .notifTitle {
-  font-size: 14px;
-  font-weight: 700;
-  color: #f9fafb;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e8edf5;
 }
 
 .markAllBtn {
-  background: transparent;
-  border: none;
-  font-size: 11px;
-  color: #6b7280;
-  font-family: 'IBM Plex Mono', monospace;
+  background: transparent; border: none;
+  font-size: 10px;
+  color: rgba(255,255,255,0.25);
+  font-family: 'JetBrains Mono', monospace;
   cursor: pointer;
   transition: color 0.1s;
 }
-.markAllBtn:hover { color: #e8ff47; }
+.markAllBtn:hover { color: #2196f3; }
 
 .notifList {
-  max-height: 360px;
+  max-height: 340px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: #1f2937 transparent;
+  scrollbar-color: rgba(255,255,255,0.06) transparent;
 }
 
 .notifEmpty {
   padding: 24px 16px;
   text-align: center;
-  font-size: 13px;
-  color: #374151;
-  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: rgba(255,255,255,0.15);
+  font-family: 'JetBrains Mono', monospace;
   margin: 0;
 }
 
@@ -368,55 +413,43 @@
   align-items: flex-start;
   gap: 10px;
   width: 100%;
-  padding: 12px 16px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  text-align: left;
+  padding: 10px 14px;
+  background: transparent; border: none;
+  cursor: pointer; text-align: left;
   transition: background 0.1s;
-  border-bottom: 1px solid #0f0f0f;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
 }
-.notifItem:hover { background: #1a1a1a; }
-
-.notifItemUnread { background: rgba(232,255,71,0.03); }
-.notifItemUnread:hover { background: rgba(232,255,71,0.06); }
+.notifItem:hover { background: rgba(255,255,255,0.04); }
+.notifItemUnread { background: rgba(33,150,243,0.04); }
+.notifItemUnread:hover { background: rgba(33,150,243,0.07); }
 
 .notifItemDot {
-  width: 16px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 16px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
   padding-top: 3px;
 }
 
 .unreadDot {
-  width: 7px;
-  height: 7px;
+  width: 6px; height: 6px;
   border-radius: 50%;
-  background: #e8ff47;
+  background: #2196f3;
   flex-shrink: 0;
 }
 
 .notifItemText {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 3px;
 }
 
 .notifItemBody {
-  font-size: 13px;
-  color: #d1d5db;
-  margin: 0;
-  line-height: 1.4;
-  white-space: normal;
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.6);
+  margin: 0; line-height: 1.45;
   word-break: break-word;
 }
 
 .notifItemTime {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
-  color: #4b5563;
+  color: rgba(255,255,255,0.18);
 }
