@@ -23,6 +23,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_TOKEN }}
+
+      - name: Clean up untagged manifests
+        run: |
+          doctl registry garbage-collection start streamr-registry --include-untagged-manifests --force
 
       - name: Log in to DigitalOcean Registry
         run: |
