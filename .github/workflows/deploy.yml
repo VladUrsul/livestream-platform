@@ -44,7 +44,7 @@ jobs:
           docker push $REGISTRY/${{ matrix.service }}:latest
 
       - name: Cleanup Registry Quota (Garbage Collection)
-        # We run this after every push to ensure untagged layers are deleted
+        # We run this after every push to ensure untagged layers are deleted please
         run: |
           doctl registry garbage-collection start streamr-registry --include-untagged-manifests --force
 
