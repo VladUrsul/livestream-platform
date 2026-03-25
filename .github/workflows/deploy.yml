@@ -33,12 +33,20 @@ jobs:
 
       - name: Build and push
         run: |
+          # Define build context
+          CONTEXT="./services/${{ matrix.service }}"
           if [ "${{ matrix.service }}" = "frontend" ]; then
-            docker build -t $REGISTRY/${{ matrix.service }}:latest ./frontend
-          else
-            docker build -t $REGISTRY/${{ matrix.service }}:latest ./services/${{ matrix.service }}
+            CONTEXT="./frontend"
           fi
+          
+          # Build and push the latest tag
+          docker build -t $REGISTRY/${{ matrix.service }}:latest $CONTEXT
           docker push $REGISTRY/${{ matrix.service }}:latest
+
+      - name: Cleanup Registry Quota (Garbage Collection)
+        # We run this after every push to ensure untagged layers are deleted
+        run: |
+          doctl registry garbage-collection start streamr-registry --include-untagged-manifests --force
 
   deploy:
     needs: build-and-push
