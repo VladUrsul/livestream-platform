@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-service
+  namespace: streamr
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: chat-service
+  template:
+    metadata:
+      labels:
+        app: chat-service
+    spec:
+      containers:
+      - name: chat-service
+        image: registry.digitalocean.com/streamr-registry/chat-service:latest
+        ports:
+        - containerPort: 8084
+        env:
+        - name: SERVER_PORT
+          value: "8084"
+        - name: DB_DSN
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: CHAT_DB_URL
+        - name: RABBITMQ_URL
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: RABBITMQ_URL
+        - name: JWT_ACCESS_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: JWT_ACCESS_SECRET
+        envFrom:
+        - configMapRef:
+            name: streamr-config
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8084
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8084
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-service
+  namespace: streamr
+spec:
+  selector:
+    app: chat-service
+  ports:
+  - port: 8084
+    targetPort: 8084

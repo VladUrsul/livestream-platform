@@ -1,0 +1,66 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [main]
+
+env:
+  REGISTRY: registry.digitalocean.com/streamr-registry
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - auth-service
+          - user-service
+          - stream-service
+          - chat-service
+          - notification-service
+          - api-gateway
+          - frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_TOKEN }}
+
+      - name: Log in to registry
+        run: doctl registry login
+
+      - name: Build and push
+        run: |
+          if [ "${{ matrix.service }}" = "frontend" ]; then
+            docker build -t $REGISTRY/${{ matrix.service }}:latest ./frontend
+          else
+            docker build -t $REGISTRY/${{ matrix.service }}:latest ./services/${{ matrix.service }}
+          fi
+          docker push $REGISTRY/${{ matrix.service }}:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_TOKEN }}
+
+      - name: Get kubeconfig
+        run: doctl kubernetes cluster kubeconfig save streamr-cluster
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f infrastructure/kubernetes/namespace.yaml
+          kubectl apply -f infrastructure/kubernetes/configmaps/
+          kubectl apply -f infrastructure/kubernetes/secrets/
+          kubectl apply -f infrastructure/kubernetes/rabbitmq/
+          kubectl apply -f infrastructure/kubernetes/deployments/
+          kubectl apply -f infrastructure/kubernetes/frontend/
+          kubectl apply -f infrastructure/kubernetes/ingress/
+          kubectl rollout restart deployment -n streamr

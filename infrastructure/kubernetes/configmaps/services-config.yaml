@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: streamr-config
+  namespace: streamr
+data:
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "info"
+
+  AUTH_SERVICE_URL: "http://auth-service:8081"
+  USER_SERVICE_URL: "http://user-service:8082"
+  STREAM_SERVICE_URL: "http://stream-service:8083"
+  CHAT_SERVICE_URL: "http://chat-service:8084"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:8085"
+
+  USER_EXCHANGE: "user.events"
+  STREAM_EXCHANGE: "stream.events"
+  AUTH_EXCHANGE: "auth.events"
+
+  GIN_MODE: "release"
