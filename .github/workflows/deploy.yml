@@ -58,7 +58,6 @@ jobs:
         run: |
           kubectl apply -f infrastructure/kubernetes/namespace.yaml
           kubectl apply -f infrastructure/kubernetes/configmaps/
-          kubectl apply -f infrastructure/kubernetes/secrets/
           kubectl apply -f infrastructure/kubernetes/rabbitmq/
           kubectl apply -f infrastructure/kubernetes/deployments/
           kubectl apply -f infrastructure/kubernetes/frontend/
