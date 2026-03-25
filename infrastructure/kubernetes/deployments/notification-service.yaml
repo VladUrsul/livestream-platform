@@ -17,7 +17,7 @@ spec:
         - name: do-registry
       containers:
       - name: notification-service
-        image: registry.digitalocean.com/streamr-registry/notification-service:latest
+        image: registry.digitalocean.com/streamr-registry/app:notification-service
         ports:
         - containerPort: 8085
         env:

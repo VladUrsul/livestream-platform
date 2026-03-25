@@ -41,7 +41,7 @@ jobs:
             CONTEXT="./frontend"
           fi
 
-          IMAGE=$REGISTRY/${{ matrix.service }}:latest
+          IMAGE=$REGISTRY/app:${{ matrix.service }}
 
           # Build and push
           docker build -t $IMAGE $CONTEXT

@@ -17,7 +17,7 @@ spec:
         - name: do-registry
       containers:
       - name: chat-service
-        image: registry.digitalocean.com/streamr-registry/chat-service:latest
+        image: registry.digitalocean.com/streamr-registry/app:chat-service
         ports:
         - containerPort: 8084
         env:

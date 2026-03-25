@@ -17,7 +17,7 @@ spec:
         - name: do-registry
       containers:
       - name: auth-service
-        image: registry.digitalocean.com/streamr-registry/auth-service:latest
+        image: registry.digitalocean.com/streamr-registry/app:auth-service
         ports:
         - containerPort: 8081
         env:

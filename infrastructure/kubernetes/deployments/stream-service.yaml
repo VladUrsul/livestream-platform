@@ -17,7 +17,7 @@ spec:
         - name: do-registry
       containers:
       - name: stream-service
-        image: registry.digitalocean.com/streamr-registry/stream-service:latest
+        image: registry.digitalocean.com/streamr-registry/app:stream-service
         ports:
         - containerPort: 8083
           name: http

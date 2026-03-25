@@ -17,7 +17,7 @@ spec:
         - name: do-registry
       containers:
       - name: user-service
-        image: registry.digitalocean.com/streamr-registry/user-service:latest
+        image: registry.digitalocean.com/streamr-registry/app:user-service
         ports:
         - containerPort: 8082
         env:

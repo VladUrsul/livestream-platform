@@ -17,7 +17,7 @@ spec:
         - name: do-registry
       containers:
       - name: api-gateway
-        image: registry.digitalocean.com/streamr-registry/api-gateway:latest
+        image: registry.digitalocean.com/streamr-registry/app:api-gateway
         ports:
         - containerPort: 8080
         envFrom:
