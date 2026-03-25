@@ -59,6 +59,7 @@ spec:
             secretKeyRef:
               name: streamr-secrets
               key: RABBITMQ_URL
+        - name: RABBITMQ_PASSWORD
           valueFrom:
             secretKeyRef:
               name: streamr-secrets

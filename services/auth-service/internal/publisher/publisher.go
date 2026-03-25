@@ -2,6 +2,7 @@ package publisher
 
 import (
 	"encoding/json"
+	"fmt"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -23,7 +24,13 @@ func New(conn *amqp.Connection, exchange string) (*Publisher, error) {
 }
 
 func (p *Publisher) Publish(routingKey string, payload any) error {
-	body, _ := json.Marshal(payload)
+	if p.ch == nil {
+		return fmt.Errorf("RabbitMQ channel not initialized")
+	}
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
 	return p.ch.Publish(p.exchange, routingKey, false, false,
 		amqp.Publishing{ContentType: "application/json", Body: body})
 }

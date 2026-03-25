@@ -1,5 +1,7 @@
 import api from './api';
 
+const WS_BASE = import.meta.env.VITE_WS_URL || 'ws://localhost:8080';
+
 export interface Notification {
   id: string;
   user_id: string;
@@ -31,7 +33,7 @@ export class NotificationSocket {
 
   connect() {
     this.closed = false;
-    const url = `ws://localhost:8080/ws/notifications?token=${encodeURIComponent(this.token)}`;
+    const url = `${WS_BASE}/ws/notifications?token=${encodeURIComponent(this.token)}`;
     this.ws = new WebSocket(url);
 
     this.ws.onmessage = (e) => {
