@@ -53,6 +53,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Log in to registry
+        run: doctl registry login --expiry-seconds 600
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
