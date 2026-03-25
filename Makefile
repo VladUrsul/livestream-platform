@@ -90,7 +90,7 @@ k8s-port-forward:
 k8s-destroy:
 	kubectl delete namespace livestream --ignore-not-found
 
-# Kubernetes - Debugging (init containers handle migrations K8s doesn't need manual migration)
+# Kubernetes - Debugging (init container handle migrations K8s doesn't need manual migration)
 k8s-debug:
 	kubectl get pods -n livestream
 	kubectl describe pod -n livestream
