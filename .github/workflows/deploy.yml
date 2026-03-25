@@ -21,30 +21,28 @@ jobs:
           - api-gateway
           - frontend
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DO_TOKEN }}
-
-      - name: Log in to registry
-        run: doctl registry login
-
-      - name: Build and push
+      - name: Log in to DigitalOcean Registry
         run: |
-          # Define build context
+          echo "${{ secrets.DO_TOKEN }}" | docker login registry.digitalocean.com -u doctl --password-stdin
+
+      - name: Build and push Docker image
+        run: |
+          # Determine build context
           CONTEXT="./services/${{ matrix.service }}"
           if [ "${{ matrix.service }}" = "frontend" ]; then
             CONTEXT="./frontend"
           fi
-          
-          # Build and push the latest tag
-          docker build -t $REGISTRY/${{ matrix.service }}:latest $CONTEXT
-          docker push $REGISTRY/${{ matrix.service }}:latest
 
-      - name: Cleanup Registry Quota (Garbage Collection)
-        # We run this after every push to ensure untagged layers are deleted please
+          IMAGE=$REGISTRY/${{ matrix.service }}:latest
+
+          # Build and push
+          docker build -t $IMAGE $CONTEXT
+          docker push $IMAGE
+
+      - name: Clean up untagged manifests
         run: |
           doctl registry garbage-collection start streamr-registry --include-untagged-manifests --force
 
@@ -52,25 +50,32 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Log in to registry
-        run: doctl registry login --expiry-seconds 600
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to DigitalOcean Registry
+        run: |
+          echo "${{ secrets.DO_TOKEN }}" | docker login registry.digitalocean.com -u doctl --password-stdin
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DO_TOKEN }}
 
-      - name: Get kubeconfig
+      - name: Configure kubectl
         run: doctl kubernetes cluster kubeconfig save streamr-cluster
 
       - name: Deploy to Kubernetes
         run: |
+          # Apply namespaces & configmaps first
           kubectl apply -f infrastructure/kubernetes/namespace.yaml
           kubectl apply -f infrastructure/kubernetes/configmaps/
           kubectl apply -f infrastructure/kubernetes/rabbitmq/
+
+          # Deploy all services
           kubectl apply -f infrastructure/kubernetes/deployments/
           kubectl apply -f infrastructure/kubernetes/frontend/
           kubectl apply -f infrastructure/kubernetes/ingress/
+
+          # Restart deployments to pick up new images
           kubectl rollout restart deployment -n streamr
