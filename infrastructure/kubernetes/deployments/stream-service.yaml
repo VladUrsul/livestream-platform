@@ -71,26 +71,12 @@ spec:
             secretKeyRef:
               name: streamr-secrets
               key: REDIS_PASSWORD
-        - name: RABBITMQ_HOST
+        # RabbitMQ
+        - name: RABBITMQ_URL
           valueFrom:
             secretKeyRef:
               name: streamr-secrets
-              key: RABBITMQ_HOST
-        - name: RABBITMQ_PORT
-          valueFrom:
-            secretKeyRef:
-              name: streamr-secrets
-              key: RABBITMQ_PORT
-        - name: RABBITMQ_USER
-          valueFrom:
-            secretKeyRef:
-              name: streamr-secrets
-              key: RABBITMQ_USER
-        - name: RABBITMQ_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: streamr-secrets
-              key: RABBITMQ_PASSWORD
+              key: RABBITMQ_URL
         - name: JWT_ACCESS_SECRET
           valueFrom:
             secretKeyRef:
