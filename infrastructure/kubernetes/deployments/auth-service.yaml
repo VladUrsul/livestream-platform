@@ -13,29 +13,83 @@ spec:
       labels:
         app: auth-service
     spec:
+      imagePullSecrets:
+        - name: do-registry
       containers:
       - name: auth-service
         image: registry.digitalocean.com/streamr-registry/auth-service:latest
         ports:
         - containerPort: 8081
         env:
-        - name: SERVER_PORT
-          value: "8081"
-        - name: DB_DSN
+        # Database
+        - name: DB_HOST
           valueFrom:
             secretKeyRef:
               name: streamr-secrets
-              key: AUTH_DB_URL
-        - name: REDIS_URL
+              key: DB_HOST
+        - name: DB_PORT
           valueFrom:
             secretKeyRef:
               name: streamr-secrets
-              key: REDIS_URL
-        - name: RABBITMQ_URL
+              key: DB_PORT
+        - name: DB_USER
           valueFrom:
             secretKeyRef:
               name: streamr-secrets
-              key: RABBITMQ_URL
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: DB_PASSWORD
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: DB_NAME
+        - name: DB_SSLMODE
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: DB_SSLMODE
+        # Redis
+        - name: REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: REDIS_HOST
+        - name: REDIS_PORT
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: REDIS_PORT
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: REDIS_PASSWORD
+        # RabbitMQ
+        - name: RABBITMQ_HOST
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: RABBITMQ_HOST
+        - name: RABBITMQ_PORT
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: RABBITMQ_PORT
+        - name: RABBITMQ_USER
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: RABBITMQ_USER
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: RABBITMQ_PASSWORD
+        # JWT
         - name: JWT_ACCESS_SECRET
           valueFrom:
             secretKeyRef:
@@ -46,6 +100,7 @@ spec:
             secretKeyRef:
               name: streamr-secrets
               key: JWT_REFRESH_SECRET
+        # ConfigMap
         envFrom:
         - configMapRef:
             name: streamr-config

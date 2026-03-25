@@ -13,6 +13,8 @@ spec:
       labels:
         app: notification-service
     spec:
+      imagePullSecrets:
+        - name: do-registry
       containers:
       - name: notification-service
         image: registry.digitalocean.com/streamr-registry/notification-service:latest
@@ -21,16 +23,56 @@ spec:
         env:
         - name: SERVER_PORT
           value: "8085"
-        - name: DB_DSN
+        - name: DB_HOST
           valueFrom:
             secretKeyRef:
               name: streamr-secrets
-              key: NOTIF_DB_URL
-        - name: RABBITMQ_URL
+              key: DB_HOST
+        - name: DB_PORT
           valueFrom:
             secretKeyRef:
               name: streamr-secrets
-              key: RABBITMQ_URL
+              key: DB_PORT
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: DB_PASSWORD
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: DB_NAME
+        - name: DB_SSLMODE
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: DB_SSLMODE
+        - name: RABBITMQ_HOST
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: RABBITMQ_HOST
+        - name: RABBITMQ_PORT
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: RABBITMQ_PORT
+        - name: RABBITMQ_USER
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: RABBITMQ_USER
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: RABBITMQ_PASSWORD
         - name: JWT_ACCESS_SECRET
           valueFrom:
             secretKeyRef:
