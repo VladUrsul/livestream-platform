@@ -13,6 +13,8 @@ spec:
       labels:
         app: frontend
     spec:
+      imagePullSecrets:
+        - name: do-registry
       containers:
       - name: frontend
         image: registry.digitalocean.com/streamr-registry/frontend:latest
@@ -36,4 +38,5 @@ spec:
     app: frontend
   ports:
   - port: 80
-    targetPort: 80
+    targetPort: 3000
+  type: LoadBalancer

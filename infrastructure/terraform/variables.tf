@@ -7,7 +7,7 @@ variable "do_token" {
 variable "region" {
   description = "DigitalOcean region"
   type        = string
-  default     = "fra1"  # Frankfurt — closest to Moldova
+  default     = "fra1"  # Frankfurt
 }
 
 variable "cluster_name" {
@@ -19,7 +19,7 @@ variable "cluster_name" {
 variable "node_size" {
   description = "Droplet size for cluster nodes"
   type        = string
-  default     = "s-2vcpu-4gb"  # $24/mo per node
+  default     = "s-2vcpu-4gb" 
 }
 
 variable "node_count" {
