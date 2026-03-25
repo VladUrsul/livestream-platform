@@ -29,10 +29,6 @@ jobs:
         with:
           token: ${{ secrets.DO_TOKEN }}
 
-      - name: Clean up untagged manifests
-        run: |
-          doctl registry garbage-collection start streamr-registry --include-untagged-manifests --force
-
       - name: Log in to DigitalOcean Registry
         run: |
           echo "${{ secrets.DO_TOKEN }}" | docker login registry.digitalocean.com -u doctl --password-stdin
@@ -50,10 +46,6 @@ jobs:
           # Build and push
           docker build -t $IMAGE $CONTEXT
           docker push $IMAGE
-
-      - name: Clean up untagged manifests
-        run: |
-          doctl registry garbage-collection start streamr-registry --include-untagged-manifests --force
 
   deploy:
     needs: build-and-push
