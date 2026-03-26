@@ -1,0 +1,288 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+.page {
+  padding: 32px 36px 60px;
+  max-width: 1000px;
+  font-family: 'Inter', sans-serif;
+  color: #e8edf5;
+}
+
+/* ── Header ───────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: #e8edf5;
+}
+
+.count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Grid ──────────────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+/* ── Card ──────────────────────────────────────────────────────── */
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+}
+.card:hover {
+  border-color: rgba(33, 150, 243, 0.2);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+}
+
+.cardMain {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 0.12s;
+}
+.cardMain:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.cardAvatar {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.2), rgba(0, 180, 216, 0.1));
+  border: 1px solid rgba(33, 150, 243, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #2196f3;
+  font-family: 'Inter', sans-serif;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.cardAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.liveDot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 2px solid #0a0f1e;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.cardInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cardNameRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.cardDisplayName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e8edf5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.liveBadge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.22);
+  padding: 1px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+.cardUsername {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.25);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.cardFollowers {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.18);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Card Actions ─────────────────────────────────────────────── */
+.cardActions {
+  display: flex;
+  gap: 7px;
+  padding: 0 16px 13px;
+}
+
+.watchBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 7px;
+  color: #f87171;
+  font-size: 11.5px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.watchBtn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.watchDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: pulse 1.5s infinite;
+}
+
+.unfollowBtn {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 7px;
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 11.5px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.unfollowBtn:hover {
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+/* ── Skeleton ───────────────────────────────────────────────────── */
+.skeletonCard {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  height: 112px;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* ── Empty State ─────────────────────────────────────────────────── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 80px 0;
+  color: rgba(255, 255, 255, 0.2);
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 44px;
+  opacity: 0.15;
+}
+.emptyTitle {
+  font-size: 17px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.35);
+  margin: 0;
+}
+.emptySub {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.2);
+  margin: 0;
+}
+
+.browseBtn {
+  margin-top: 8px;
+  padding: 9px 22px;
+  background: rgba(33, 150, 243, 0.1);
+  border: 1px solid rgba(33, 150, 243, 0.25);
+  border-radius: 8px;
+  color: #60b8ff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.browseBtn:hover {
+  background: rgba(33, 150, 243, 0.18);
+  border-color: rgba(33, 150, 243, 0.4);
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 20px 16px;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+

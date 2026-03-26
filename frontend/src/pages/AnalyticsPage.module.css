@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg-base: #0a0f1e;
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --accent: #2196f3;
+  --accent-soft: rgba(33, 150, 243, 0.15);
+  --text-primary: #e8edf5;
+  --text-secondary: rgba(255, 255, 255, 0.35);
+  --radius-md: 12px;
+}
+
+.page {
+  padding: 28px 32px 64px;
+  min-height: 100vh;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 18px 18px 16px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.cardLabel {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 12px;
+}
+
+.cardValue {
+  font-size: 28px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: -0.02em;
+}
+
+.cardHint {
+  margin-top: 10px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  color: rgba(96, 184, 255, 0.75);
+}
+
+.notice {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.02);
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 16px 14px 40px;
+  }
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+

@@ -10,6 +10,10 @@ const GoLive      = lazy(() => import('../pages/GoLive'));
 const StreamPage  = lazy(() => import('../pages/StreamPage'));
 const ChannelPage = lazy(() => import('../pages/ChannelPage'));
 const FollowingPage = lazy(() => import('../pages/FollowingPage'));
+const BrowsePage = lazy(() => import('../pages/BrowsePage'));
+const SubscriptionsPage = lazy(() => import('../pages/SubscriptionsPage'));
+const AnalyticsPage = lazy(() => import('../pages/AnalyticsPage'));
+const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 
 const Loader = () => (
   <div style={{
@@ -52,6 +56,18 @@ export const router = createBrowserRouter([
           },
           { path: '/following',  
             element: S(FollowingPage) 
+          },
+          { path: '/browse',
+            element: S(BrowsePage)
+          },
+          { path: '/subscriptions',
+            element: S(SubscriptionsPage)
+          },
+          { path: '/analytics',
+            element: S(AnalyticsPage)
+          },
+          { path: '/settings',
+            element: S(SettingsPage)
           },
         ],
       },

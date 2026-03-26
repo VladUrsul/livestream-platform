@@ -122,6 +122,35 @@
   animation: pulse 1.5s infinite;
 }
 
+/* Chat button (redirects to /stream/:username where chat is mounted) */
+.chatBtn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  background: rgba(33,150,243,0.12);
+  color: #60b8ff;
+  border: 1px solid rgba(33,150,243,0.25);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.chatBtn:hover {
+  background: rgba(33,150,243,0.18);
+  border-color: rgba(33,150,243,0.45);
+}
+
+.chatBtnDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #2196f3;
+  animation: pulse 1.5s infinite;
+}
+
 /* ── Profile Header ──────────────────────────────────────────────── */
 .profileHeader {
   display: flex; align-items: flex-start; justify-content: space-between;
