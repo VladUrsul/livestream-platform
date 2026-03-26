@@ -17,7 +17,7 @@ spec:
         - name: do-registry
       containers:
       - name: frontend
-        image: registry.digitalocean.com/streamr-registry/frontend:latest
+        image: registry.digitalocean.com/streamr-registry/app:frontend
         ports:
         - containerPort: 80
         resources:

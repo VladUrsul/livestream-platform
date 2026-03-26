@@ -33,21 +33,21 @@ spec:
             secretKeyRef:
               name: streamr-secrets
               key: DB_PORT
-        - name: DB_USER
-          valueFrom:
-            secretKeyRef:
-              name: streamr-secrets
-              key: DB_USER
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: streamr-secrets
-              key: DB_PASSWORD
         - name: DB_NAME
           valueFrom:
             secretKeyRef:
               name: streamr-secrets
-              key: DB_NAME
+              key: NOTIF_DB_NAME
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: NOTIF_DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: streamr-secrets
+              key: NOTIF_DB_PASSWORD
         - name: DB_SSLMODE
           valueFrom:
             secretKeyRef:
