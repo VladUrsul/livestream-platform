@@ -12,6 +12,7 @@ data:
   STREAM_SERVICE_URL: "http://stream-service:8083"
   CHAT_SERVICE_URL: "http://chat-service:8084"
   NOTIFICATION_SERVICE_URL: "http://notification-service:8085"
+  HLS_BASE_URL: "http://209.38.55.252/hls"
 
   USER_EXCHANGE: "user.events"
   STREAM_EXCHANGE: "stream.events"

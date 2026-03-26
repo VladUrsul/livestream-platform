@@ -24,6 +24,11 @@ spec:
         - containerPort: 1935
           name: rtmp
         env:
+        - name: HLS_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: streamr-config
+              key: HLS_BASE_URL
         - name: SERVER_PORT
           value: "8083"
         - name: DB_HOST
